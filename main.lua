@@ -160,10 +160,10 @@ function love.draw()
 	love.graphics.circle( "fill", x, y, Rfig, 100 )
 end
 
-function love.keypressed( key, isrepeat )
-	if key == 'q' then
+function love.keypressed( key, scancode, isrepeat )
+	if scancode == 'q' then
 		love.event.quit()
-	elseif key == " " and konec == false then
+	elseif scancode == "space" and konec == false then
 		preskok:play()
 		if poz == 1 then
 			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
@@ -192,7 +192,7 @@ function love.keypressed( key, isrepeat )
 				inside = -inside
 			end
 		end
-	elseif key == 'r' then
+	elseif scancode == 'r' then
 		love.load()
 	end
 end

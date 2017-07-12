@@ -14,9 +14,9 @@ zamenjalo za verzijo 0.10.2 v kratkem.
 
 TODO:
 
-1) Zamenjaj klice funkcij, tako da bodo kompatibilni z verzijo löve-a 10.2.
+OPRAVLJENO! 1) Zamenjaj klice funkcij, tako da bodo kompatibilni z verzijo löve-a 10.2.
 2) Popravi tranzicijo kroglice, tako da bo zvezno preskočila na sosednji krog.
-3) Popravi skok kroglice, tako da bo pristala na čim bližnjem mestu od mesta odskoka.
+ZASILNO REŠENO 3) Popravi skok kroglice, tako da bo pristala na čim bližnjem mestu od mesta odskoka.
 4) Spremeni način obravnave krogov pri koliziji in skakanju, tako da ne bo 
 	omejeno na enega prej ter enega kasneje ( Poljubno število krogov ).
 	Hkrati še poskusi rešit poseben primer za prvi krog.
