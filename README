@@ -6,6 +6,9 @@ se ne pride do tazadnjega. Kakršna-koli kolizija pomeni konec igre.
 Zvočne posnetke, ki se uporabljajo v tem projektu se lahko najde na naslovu:
 https://opengameart.org/content/512-sound-effects-8-bit-style
 
+Priporočila za programiranje v Lua jeziku:
+http://dev.minetest.net/Lua_code_style_guidelines
+
 Trenutno se za projekt uporablja lua, verzije 5.3 ter löve verzije 0.9.1, kar se bo
 zamenjalo za verzijo 0.10.2 v kratkem.
 
