@@ -30,10 +30,10 @@ function love.load()
 	math.randomseed( os.time() )
 
 	--Zvočni efekti
-	preskok = love.audio.newSource("sfx_movement_jump14.wav", "static")
-	nalet = love.audio.newSource("sfx_exp_shortest_hard5.wav", "static")
-	zmaga = love.audio.newSource("sfx_sounds_button7.wav", "static")
-	zacetek = love.audio.newSource("sfx_sounds_button14.wav", "static")
+	preskok = love.audio.newSource("audio/sfx_movement_jump14.wav", "static")
+	nalet = love.audio.newSource("audio/sfx_exp_shortest_hard5.wav", "static")
+	zmaga = love.audio.newSource("audio/sfx_sounds_button7.wav", "static")
+	zacetek = love.audio.newSource("audio/sfx_sounds_button14.wav", "static")
 
 	--lepi fonti
 	-- font = love.graphics.newImageFont("Imagefont.png",
