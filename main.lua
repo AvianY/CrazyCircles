@@ -61,14 +61,14 @@ function love.load()
 	d = { { 0, 100, 0 } }
 	
 	--generira kroge
-	for i=1,numKrog do
+	for i=2,numKrog do
 		fid = math.random(-dfid*100, dfid*100)/100
-		fi = fid + d[i][1]
+		fi = fid + d[i - 1][1]
 		r = math.random(rmin, rmax)
-		R = r + d[i][2]
+		R = r + d[i - 1][2]
 
-		x = krogi[i][1]+(r + krogi[i][3])*m.cos(fi)
-		y = krogi[i][2]+(r + krogi[i][3])*m.sin(fi)
+		x = krogi[i - 1][1]+(r + krogi[i - 1][3])*m.cos(fi)
+		y = krogi[i - 1][2]+(r + krogi[i - 1][3])*m.sin(fi)
 		table.insert(krogi, {x, y, r})
 		table.insert(d, { fi, R, fid })
 	end
@@ -104,14 +104,14 @@ function love.update( dt )
 	x = krogi[poz][1] + (krogi[poz][3] - Rfig*inside)*m.cos(fi)
 	y = krogi[poz][2] + (krogi[poz][3] - Rfig*inside)*m.sin(fi)
 
-	if diff(x, y, krogi[poz + 1][1], krogi[poz + 1][2]) < (Rfig + krogi[poz + 1][3]) and konec == false then
-		konec = true
-		nalet:play()
-	elseif poz == numKrog and konec == false then
+	if poz == numKrog and konec == false then
 		konec = true
 		zmaga:play()
+	elseif diff(x, y, krogi[poz + 1][1], krogi[poz + 1][2]) < (Rfig + krogi[poz + 1][3]) and konec == false and inside == -1 then
+		konec = true
+		nalet:play()
 	elseif poz > 1 then
-		if diff(x, y, krogi[poz - 1][1], krogi[poz - 1][2]) < (Rfig + krogi[poz - 1][3]) and konec == false then
+		if diff(x, y, krogi[poz - 1][1], krogi[poz - 1][2]) < (Rfig + krogi[poz - 1][3]) and konec == false and inside == -1 then
 			konec = true
 			nalet:play()
 		end
@@ -170,7 +170,7 @@ function love.keypressed( key, isrepeat )
 		preskok:play()
 		if poz == 1 then
 			if inside == 1 and krogi[poz + 1][3] + Kbonus*Rfig > diff(x, y, krogi[poz + 1][1], krogi[poz + 1][2]) then
-				fi = fi + m.pi
+				fi = d[poz][1] + d[poz + 1][3] + m.pi
 				poz = poz + 1
 				smer = -smer
 				pozChange = 1
@@ -179,12 +179,12 @@ function love.keypressed( key, isrepeat )
 			end
 		else
 			if inside == 1 and krogi[poz + 1][3] + Kbonus*Rfig > diff(x, y, krogi[poz + 1][1], krogi[poz + 1][2]) then
-				fi = fi + m.pi
+				fi = d[poz][1] + d[poz + 1][3] + m.pi
 				poz = poz + 1
 				smer = -smer
 				pozChange = 1
 			elseif inside == 1 and krogi[poz - 1][3] + Kbonus*Rfig > diff(x, y, krogi[poz - 1][1], krogi[poz - 1][2]) then
-				fi = fi + m.pi
+				fi = d[poz][1] + d[poz + 1][3] + m.pi
 				poz = poz - 1
 				smer = -smer
 				pozChange = - 1
