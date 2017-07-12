@@ -5,24 +5,21 @@ function diff(x1, y1, x2, y2)
 	return m.sqrt( (x1 - x2)^2 + (y1 - y2)^2 )
 end
 
-function vek_koef(krogi, poz)
-	return { krogi[poz + 1][1] - krogi[poz][1],  krogi[poz + 1][2] - krogi[poz][2] }
-end
-
-function find_minDist(x, y, krogi, poz, fi)
-	dist_betw_jumps = {}
-	key = 1
-	for i=1,0.1,2*m.pi do
-		table.insert(dist_betw_jumps, diff(x, y, krogi[poz + 1][1] + (krogi[poz + 1][3] - Rfig*inside)*m.cos(i), krogi[poz + 1][1] + (krogi[poz + 1][3] - Rfig*inside)*m.cos(i)))
-	end
-
-	table.sort(dist_betw_jumps)
-	min = dist_betw_jumps[0]
-
-	for i=1,0.1,2*m.pi do
-		 if diff(x, y, krogi[poz + 1][1] + (krogi[poz + 1][3] - Rfig*inside)*m.cos(i), krogi[poz + 1][1] + (krogi[poz + 1][3] - Rfig*inside)*m.cos(i)) == min then
-			 return i
-		 end
+function camera_transition()
+	if trans <= 20 then
+		-- najprej odmaknemo pogled od izhodišča do trenutnega kroga,
+		-- nato pa vsakič se pomaknemo za večji odmik proti naslednjemu
+		love.graphics.translate( -krogi[poz - pozChange][1] + love.graphics.getWidth()/2,
+			-krogi[poz - pozChange][2] + love.graphics.getHeight()/2)
+		love.graphics.translate(( -krogi[poz][1] + krogi[poz - pozChange][1])*trans/20,
+			(-krogi[poz][2] + krogi[poz - pozChange][2])*trans/20)
+		trans = trans + 1
+	else
+		--ponastavimo spremenljivke
+		trans = 0
+		pozChange = 0
+		love.graphics.translate( -krogi[poz][1] + love.graphics.getWidth()/2,
+			-krogi[poz][2] + love.graphics.getHeight()/2)
 	end
 end
 
@@ -75,7 +72,8 @@ function love.load()
 
 
 	--poz pove v katerem krogu smo
-	--pozChange pove, če je prišlo do dogodka, da se spremeni trenutni krog (1 za naprej, -1 za nazaj)
+	--pozChange pove, če je prišlo do dogodka, da se spremeni trenutni krog
+	--	(1 za naprej, -1 za nazaj)
 	--fi je trenutni kot okoli trenutnega kroga
 	--Rfig je polmer premikajočega se kroga
 	--inside pove ali smo v ali zunaj kroga
@@ -107,14 +105,21 @@ function love.update( dt )
 	if poz == numKrog and konec == false then
 		konec = true
 		zmaga:play()
-	elseif diff(x, y, krogi[poz + 1][1], krogi[poz + 1][2]) < (Rfig + krogi[poz + 1][3]) and konec == false and inside == -1 then
+		
+	elseif diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) < (Rfig + krogi[poz+1][3])
+		and konec == false
+		and inside == -1 then
 		konec = true
 		nalet:play()
+
 	elseif poz > 1 then
-		if diff(x, y, krogi[poz - 1][1], krogi[poz - 1][2]) < (Rfig + krogi[poz - 1][3]) and konec == false and inside == -1 then
+		if diff(x, y, krogi[poz-1][1], krogi[poz-1][2]) < (Rfig + krogi[poz-1][3])
+			and konec == false
+			and inside == -1 then
 			konec = true
 			nalet:play()
 		end
+
 	end
 
 end
@@ -124,19 +129,10 @@ function love.draw()
 		love.graphics.print( poz )
 		--naredimo prehodno animacijo za takrat, ko spremenimo krog
 		if pozChange ~= 0 then
-			if trans <= 20 then
-				--najprej odmaknemo pogled od izhodišča do trenutnega kroga, nato pa vsakič se pomaknemo za večji odmik proti naslednjemu
-				love.graphics.translate( -krogi[poz - pozChange][1] + love.graphics.getWidth()/2, -krogi[poz - pozChange][2] + love.graphics.getHeight()/2)
-				love.graphics.translate(( -krogi[poz][1] + krogi[poz - pozChange][1])*trans/20,(-krogi[poz][2] + krogi[poz - pozChange][2])*trans/20)
-				trans = trans + 1
-			else
-				--ponastavimo spremenljivke
-				trans = 0
-				pozChange = 0
-				love.graphics.translate( -krogi[poz][1] + love.graphics.getWidth()/2, -krogi[poz][2] + love.graphics.getHeight()/2)
-			end
+			camera_transition()
 		else
-			love.graphics.translate( -krogi[poz][1] + love.graphics.getWidth()/2, -krogi[poz][2] + love.graphics.getHeight()/2)
+			love.graphics.translate( -krogi[poz][1] + love.graphics.getWidth()/2,
+				-krogi[poz][2] + love.graphics.getHeight()/2)
 		end
 	else
 		if poz < numKrog then
@@ -149,7 +145,8 @@ function love.draw()
 		love.graphics.print("or 'q' to quit", 300, 360)
 		love.graphics.scale( 1/(trans + 1), 1/(trans + 1) )
 		trans = trans + 0.01
-		love.graphics.translate( -(krogi[poz][1] - krogi[1][1])/2 + love.graphics.getWidth()/2, -(krogi[poz][2] - krogi[1][2])/2 + love.graphics.getHeight()/2)
+		love.graphics.translate( -(krogi[poz][1] - krogi[1][1])/2 + love.graphics.getWidth()/2,
+			-(krogi[poz][2] - krogi[1][2])/2 + love.graphics.getHeight()/2)
 
 	end
 
@@ -169,23 +166,26 @@ function love.keypressed( key, isrepeat )
 	elseif key == " " and konec == false then
 		preskok:play()
 		if poz == 1 then
-			if inside == 1 and krogi[poz + 1][3] + Kbonus*Rfig > diff(x, y, krogi[poz + 1][1], krogi[poz + 1][2]) then
-				fi = d[poz][1] + d[poz + 1][3] + m.pi
-				poz = poz + 1
+			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
+				> diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) then
+				fi = d[poz][1] + d[poz+1][3] + m.pi
+				poz = poz+1
 				smer = -smer
 				pozChange = 1
 			else
 				inside = -inside
 			end
 		else
-			if inside == 1 and krogi[poz + 1][3] + Kbonus*Rfig > diff(x, y, krogi[poz + 1][1], krogi[poz + 1][2]) then
-				fi = d[poz][1] + d[poz + 1][3] + m.pi
-				poz = poz + 1
+			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
+				> diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) then
+				fi = d[poz][1] + d[poz+1][3] + m.pi
+				poz = poz+1
 				smer = -smer
 				pozChange = 1
-			elseif inside == 1 and krogi[poz - 1][3] + Kbonus*Rfig > diff(x, y, krogi[poz - 1][1], krogi[poz - 1][2]) then
-				fi = d[poz][1] + d[poz + 1][3] + m.pi
-				poz = poz - 1
+			elseif inside == 1 and krogi[poz-1][3] + Kbonus*Rfig
+				> diff(x, y, krogi[poz-1][1], krogi[poz-1][2]) then
+				fi = d[poz][1] + d[poz+1][3] + m.pi
+				poz = poz-1
 				smer = -smer
 				pozChange = - 1
 			else
