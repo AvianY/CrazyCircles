@@ -25,7 +25,7 @@ function camera_transition()
 end
 
 function love.load()
-	math.randomseed( os.time() )
+	m.randomseed( os.time() )
 
 	--Zvočni efekti
 	preskok = love.audio.newSource("audio/sfx_movement_jump14.wav", "static")
@@ -59,12 +59,12 @@ function love.load()
 	--d (dist vektor) = fi , R, fid
 	krogi = { {300, 300, 100} }
 	d = { { 0, 100, 0 } }
-	
+
 	--generira kroge
 	for i=2,numKrog do
-		fid = math.random(-dfid*100, dfid*100)/100
+		fid = m.random(-dfid*100, dfid*100)/100
 		fi = fid + d[i - 1][1]
-		r = math.random(rmin, rmax)
+		r = m.random(rmin, rmax)
 		R = r + d[i - 1][2]
 
 		x = krogi[i - 1][1]+(r + krogi[i - 1][3])*m.cos(fi)
@@ -108,7 +108,7 @@ function love.update( dt )
 	if poz == numKrog and konec == false then
 		konec = true
 		love.audio.play(zmaga)
-		
+
 	elseif poz+1 <= numKrog and diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) < (Rfig + krogi[poz+1][3])
 		and konec == false
 		and inside == -1 then
