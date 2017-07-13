@@ -1,6 +1,7 @@
--- Narejeno na verziji Löve 9.1
+-- Narejeno na verziji Löve 0.10.2
 m = require "math"
 
+-- razdalja med točkama
 function diff(x1, y1, x2, y2)
 	return m.sqrt( (x1 - x2)^2 + (y1 - y2)^2 )
 end
@@ -43,6 +44,8 @@ function love.load()
 	--rmin = najmanjši polmer kroga
 	--rmax = največji polmer kroga
 	--dfid = največji kotni odmik do naslednje točke
+	--numKrog = število krogov
+	--konec = preveri ali je konec igre
 	rmin = 40
 	rmax = 200
 	dfid = 0.3*m.pi/2
@@ -88,7 +91,7 @@ function love.load()
 	x = krogi[poz][1] + (krogi[poz][3] - Rfig*inside)*m.cos(fi)
 	y = krogi[poz][2] + (krogi[poz][3] - Rfig*inside)*m.sin(fi)
 
-	zacetek:play()
+	love.audio.play(zacetek)
 end
 
 function love.update( dt )
@@ -104,20 +107,20 @@ function love.update( dt )
 
 	if poz == numKrog and konec == false then
 		konec = true
-		zmaga:play()
+		love.audio.play(zmaga)
 		
-	elseif diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) < (Rfig + krogi[poz+1][3])
+	elseif poz+1 <= numKrog and diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) < (Rfig + krogi[poz+1][3])
 		and konec == false
 		and inside == -1 then
 		konec = true
-		nalet:play()
+		love.audio.play(nalet)
 
 	elseif poz > 1 then
 		if diff(x, y, krogi[poz-1][1], krogi[poz-1][2]) < (Rfig + krogi[poz-1][3])
 			and konec == false
 			and inside == -1 then
 			konec = true
-			nalet:play()
+			love.audio.play(nalet)
 		end
 
 	end
@@ -164,7 +167,7 @@ function love.keypressed( key, scancode, isrepeat )
 	if scancode == 'q' then
 		love.event.quit()
 	elseif scancode == "space" and konec == false then
-		preskok:play()
+		love.audio.play(preskok)
 		if poz == 1 then
 			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
 				> diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) then
