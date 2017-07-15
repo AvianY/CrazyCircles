@@ -28,13 +28,22 @@ function genone( t )
 	local newY = t[L][2] + ( randR + t[L][3] )*m.sin(newFi)
 	local newCircle = { newX, newY, randR, {L} }
 
-	for k,v in pairs(newCircle) do
-		table.insert(t[L][4], v)
-	end
-
+	table.insert(t[L][4], L+1)
 	table.insert(t, newCircle)
 
 	return t
+end
+
+-- Check if the table contains one of the values
+local function has_value ( table, values)
+	for ktab, vtab in ipairs(table) do
+		for kvals, vvals in ipairs(values) do
+			if vtab == vvals then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 function camera_transition()
@@ -79,8 +88,8 @@ function love.load()
 	--konec = preveri ali je konec igre
 	rmin = 40
 	rmax = 100
-	dfid = 1*m.pi/2
-	numSeg = 10
+	dfid = 0.9*m.pi/2
+	numSeg = 100
 	konec = false
 	Kbonus = 1.3
 
@@ -101,21 +110,28 @@ function love.load()
 	local Pone = 1
 	local Pfour = 0
 
+	local retries = 0
 	for i=3,numSeg do
+		::RETRY::
 		krogi = genone( krogi )
-	end
 
-	-- Check for circle colisions!!
-	-- If they colide, restart the whole program
-	for i=1,numSeg do
-		for j=1,numSeg do
-			if i~=j then --do not compare to the same circle
-				if difft( krogi, i, j )+0.0001 < krogi[i][3] + krogi[j][3] then
-					love.load()
+		-- Check for circle colisions!!
+		-- If they colide, remove the last table entry
+		for j=1,i-1 do
+			if not has_value( krogi[i][4], {j} ) then
+			-- if true then
+				if difft( krogi, i, j )+10 < krogi[i][3] + krogi[j][3] then
+					table.remove(krogi, #krogi)
+					retries = retries + 1
+					if retries > 2 then
+						love.load()
+					end
+					goto RETRY -- I am so sorry...
 				end
 			end
 		end
 	end
+
 
 	--poz pove v katerem krogu smo
 	--pozChange pove, če je prišlo do dogodka, da se spremeni trenutni krog
