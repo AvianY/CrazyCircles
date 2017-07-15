@@ -10,17 +10,21 @@ function difft( t, poz1, poz2 )
 	return m.sqrt( (t[poz1][1] - t[poz2][1])^2 + (t[poz1][2] - t[poz2][2])^2 )
 end
 
-function angle( t, poz )
-	y1 = t[poz-1][2]
-	x1 = t[poz-1][1]
-	y2 = t[poz][2]
-	x2 = t[poz][1]
+function diffFig( t, poz, xpos, ypos )
+	return m.sqrt( (t[poz][1] - xpos)^2 + (t[poz][2] - ypos)^2 )
+end
+
+function angle( t, poz1, poz2 )
+	y1 = t[poz1][2]
+	x1 = t[poz1][1]
+	y2 = t[poz2][2]
+	x2 = t[poz2][1]
 	return m.atan2(  y2 - y1 , x2 - x1  )
 end
 
 function genone( t )
 	local L = #t
-	local preFi = angle( t, L )
+	local preFi = angle( t, L-1 , L)
 	local randFi = m.random( -dfid*100, dfid*100 )/100
 	local newFi = preFi + randFi
 	local randR = m.random( rmin, rmax )
@@ -89,7 +93,7 @@ function love.load()
 	rmin = 40
 	rmax = 100
 	dfid = 0.9*m.pi/2
-	numSeg = 100
+	numSeg = 10
 	konec = false
 	Kbonus = 1.3
 
@@ -227,34 +231,14 @@ function love.keypressed( key, scancode, isrepeat )
 		love.event.quit()
 	elseif scancode == "space" and konec == false then
 		love.audio.play(preskok)
-		if poz == 1 then
-			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
-				> diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) then
-				fi = fi + m.pi
-				poz = poz+1
+		for k,v in ipairs(krogi[poz][4]) do -- Check if close enough to neighs
+			if diffFig( krogi, v, x, y ) < (krogi[v][3])*Kbonus then
+				fi = angle( krogi, poz, v ) + m.pi
+				poz = v
 				smer = -smer
-				pozChange = 1
-			else
-				inside = -inside
-			end
-		else
-			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
-				> diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) then
-				fi = fi + m.pi
-				poz = poz+1
-				smer = -smer
-				pozChange = 1
-			elseif inside == 1 and krogi[poz-1][3] + Kbonus*Rfig
-				> diff(x, y, krogi[poz-1][1], krogi[poz-1][2]) then
-				fi = fi + m.pi
-				poz = poz-1
-				smer = -smer
-				pozChange = - 1
-			else
-				inside = -inside
 			end
 		end
-	elseif scancode == 'r' then
+	elseif  scancode == 'r' then
 		love.load()
 	end
 end
