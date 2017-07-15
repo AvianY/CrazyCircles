@@ -236,6 +236,8 @@ function love.keypressed( key, scancode, isrepeat )
 				fi = angle( krogi, poz, v ) + m.pi
 				poz = v
 				smer = -smer
+			else
+				inside = -inside
 			end
 		end
 	elseif  scancode == 'r' then
