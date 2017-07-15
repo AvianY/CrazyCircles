@@ -6,6 +6,37 @@ function diff(x1, y1, x2, y2)
 	return m.sqrt( (x1 - x2)^2 + (y1 - y2)^2 )
 end
 
+function difft( t, poz1, poz2 )
+	return m.sqrt( (t[poz1][1] - t[poz2][1])^2 + (t[poz1][2] - t[poz2][2])^2 )
+end
+
+function angle( t, poz )
+	y1 = t[poz-1][2]
+	x1 = t[poz-1][1]
+	y2 = t[poz][2]
+	x2 = t[poz][1]
+	return m.atan2(  y2 - y1 , x2 - x1  )
+end
+
+function genone( t )
+	local L = #t
+	local preFi = angle( t, L )
+	local randFi = m.random( -dfid*100, dfid*100 )/100
+	local newFi = preFi + randFi
+	local randR = m.random( rmin, rmax )
+	local newX = t[L][1] + ( randR + t[L][3] )*m.cos(newFi)
+	local newY = t[L][2] + ( randR + t[L][3] )*m.sin(newFi)
+	local newCircle = { newX, newY, randR, {L} }
+
+	for k,v in pairs(newCircle) do
+		table.insert(t[L][4], v)
+	end
+
+	table.insert(t, newCircle)
+
+	return t
+end
+
 function camera_transition()
 	if trans <= 20 then
 		-- najprej odmaknemo pogled od izhodišča do trenutnega kroga,
@@ -44,35 +75,47 @@ function love.load()
 	--rmin = najmanjši polmer kroga
 	--rmax = največji polmer kroga
 	--dfid = največji kotni odmik do naslednje točke
-	--numKrog = število krogov
+	--numSeg = število krogov
 	--konec = preveri ali je konec igre
 	rmin = 40
-	rmax = 200
-	dfid = 0.3*m.pi/2
-	numKrog = 40
+	rmax = 100
+	dfid = 1*m.pi/2
+	numSeg = 10
 	konec = false
 	Kbonus = 1.3
 
 	trans = 0
 
-	--krogi = x, y, r
-	--d (dist vektor) = fi , R, fid
-	krogi = { {300, 300, 100} }
-	d = { { 0, 100, 0 } }
+	-- krogi = x, y, r
+
+	--generira prvi in drugi krog
+	krogi = { {300, 300, m.random( rmin, rmax ), {2}} }
+
+	local randFi = m.random( -100*m.pi, 100*m.pi)/100
+	local randR = m.random( rmin, rmax )
+	sekX = krogi[1][1] + (randR + krogi[1][3])*m.cos(randFi)
+	sekY = krogi[1][2] + (randR + krogi[1][3])*m.sin(randFi)
+	table.insert( krogi, { sekX, sekY, randR, {1} })
 
 	--generira kroge
-	for i=2,numKrog do
-		fid = m.random(-dfid*100, dfid*100)/100
-		fi = fid + d[i - 1][1]
-		r = m.random(rmin, rmax)
-		R = r + d[i - 1][2]
+	local Pone = 1
+	local Pfour = 0
 
-		x = krogi[i - 1][1]+(r + krogi[i - 1][3])*m.cos(fi)
-		y = krogi[i - 1][2]+(r + krogi[i - 1][3])*m.sin(fi)
-		table.insert(krogi, {x, y, r})
-		table.insert(d, { fi, R, fid })
+	for i=3,numSeg do
+		krogi = genone( krogi )
 	end
 
+	-- Check for circle colisions!!
+	-- If they colide, restart the whole program
+	for i=1,numSeg do
+		for j=1,numSeg do
+			if i~=j then --do not compare to the same circle
+				if difft( krogi, i, j )+0.0001 < krogi[i][3] + krogi[j][3] then
+					love.load()
+				end
+			end
+		end
+	end
 
 	--poz pove v katerem krogu smo
 	--pozChange pove, če je prišlo do dogodka, da se spremeni trenutni krog
@@ -105,11 +148,11 @@ function love.update( dt )
 	x = krogi[poz][1] + (krogi[poz][3] - Rfig*inside)*m.cos(fi)
 	y = krogi[poz][2] + (krogi[poz][3] - Rfig*inside)*m.sin(fi)
 
-	if poz == numKrog and konec == false then
+	if poz == numSeg and konec == false then
 		konec = true
 		love.audio.play(zmaga)
 
-	elseif poz+1 <= numKrog and diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) < (Rfig + krogi[poz+1][3])
+	elseif poz+1 <= numSeg and diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) < (Rfig + krogi[poz+1][3])
 		and konec == false
 		and inside == -1 then
 		konec = true
@@ -138,7 +181,7 @@ function love.draw()
 				-krogi[poz][2] + love.graphics.getHeight()/2)
 		end
 	else
-		if poz < numKrog then
+		if poz < numSeg then
 			love.graphics.print("GAME OVER", 300, 300)
 		else
 			love.graphics.setColor( 0, 255, 0)
@@ -154,7 +197,7 @@ function love.draw()
 	end
 
 	--Nariše kroge
-	for i=1,numKrog do
+	for i=1,numSeg do
 		love.graphics.setColor( 255, 255, 255)
 		love.graphics.circle( "line", krogi[i][1], krogi[i][2], krogi[i][3], 100 )
 	end
@@ -171,7 +214,7 @@ function love.keypressed( key, scancode, isrepeat )
 		if poz == 1 then
 			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
 				> diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) then
-				fi = d[poz][1] + d[poz+1][3] + m.pi
+				fi = fi + m.pi
 				poz = poz+1
 				smer = -smer
 				pozChange = 1
@@ -181,13 +224,13 @@ function love.keypressed( key, scancode, isrepeat )
 		else
 			if inside == 1 and krogi[poz+1][3] + Kbonus*Rfig
 				> diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) then
-				fi = d[poz][1] + d[poz+1][3] + m.pi
+				fi = fi + m.pi
 				poz = poz+1
 				smer = -smer
 				pozChange = 1
 			elseif inside == 1 and krogi[poz-1][3] + Kbonus*Rfig
 				> diff(x, y, krogi[poz-1][1], krogi[poz-1][2]) then
-				fi = d[poz][1] + d[poz+1][3] + m.pi
+				fi = fi + m.pi
 				poz = poz-1
 				smer = -smer
 				pozChange = - 1
