@@ -217,8 +217,9 @@ function love.draw()
 			love.graphics.setColor( 0, 255, 0)
 			love.graphics.print("YOU WIN", 300, 300)
 		end
-		love.graphics.print("Press 'r' to restart", 280, 330)
-		love.graphics.print("or 'q' to quit", 300, 360)
+		love.graphics.print("Press 'r' to retry", 280, 330)
+		love.graphics.print("Press 'n' to start a new track", 280, 360)
+		love.graphics.print("or 'q' to quit", 300, 380)
 		love.graphics.scale( 1/(trans + 1), 1/(trans + 1) )
 		trans = trans + 0.01
 		love.graphics.translate( -(krogi[poz][1] - krogi[1][1])/2 + love.graphics.getWidth()/2,
@@ -257,7 +258,12 @@ function love.keypressed( key, scancode, isrepeat )
 		if not lock then
 			inside = -inside
 		end
-	elseif  scancode == 'r' then
+	elseif  scancode == 'n' then
 		love.load()
+	elseif  scancode == 'r' then
+		poz = 1
+		konec = false
+		inside = 1
+		love.audio.play(zacetek)
 	end
 end
