@@ -221,9 +221,11 @@ function love.draw()
 		love.graphics.print("Press 'n' to start a new track", 280, 360)
 		love.graphics.print("or 'q' to quit", 300, 380)
 		love.graphics.scale( 1/(trans + 1), 1/(trans + 1) )
-		trans = trans + 0.01
-		love.graphics.translate( -(krogi[poz][1] - krogi[1][1])/2 + love.graphics.getWidth()/2,
-			-(krogi[poz][2] - krogi[1][2])/2 + love.graphics.getHeight()/2)
+		love.graphics.translate( -(krogi[poz][1] - krogi[1][1])/2 + love.graphics.getWidth()/2*(trans+1),
+			-(krogi[poz][2] - krogi[1][2])/2 + love.graphics.getHeight()/2*(trans+1))
+		if trans < 20 then
+			trans = trans + 0.01
+		end
 
 	end
 
