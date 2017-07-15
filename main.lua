@@ -50,21 +50,23 @@ local function has_value ( table, values)
 	return false
 end
 
-function camera_transition()
-	if trans <= 20 then
+function camera_transition( t, last, poz, steps  )
+	local width = love.graphics.getWidth()
+	local height = love.graphics.getHeight()
+	local ratio = trans/steps
+	if trans <= steps then
 		-- najprej odmaknemo pogled od izhodišča do trenutnega kroga,
 		-- nato pa vsakič se pomaknemo za večji odmik proti naslednjemu
-		love.graphics.translate( -krogi[poz - pozChange][1] + love.graphics.getWidth()/2,
-			-krogi[poz - pozChange][2] + love.graphics.getHeight()/2)
-		love.graphics.translate(( -krogi[poz][1] + krogi[poz - pozChange][1])*trans/20,
-			(-krogi[poz][2] + krogi[poz - pozChange][2])*trans/20)
+		love.graphics.translate(-t[last][1] + width/2, -t[last][2] + height/2)
+		love.graphics.translate((-t[poz][1] + t[last][1])*ratio, (-t[poz][2] + t[last][2])*ratio)
 		trans = trans + 1
 	else
-		--ponastavimo spremenljivke
+		--ponastavimo spremenljivke in upoštevamo, da se ob koncu "iteracije"
+		--izvede zadnja iteracija, kjer se mora zoper kamera premaknit na 
+		--pravo mesto in zato moramo še tu postavit primerno tranzlacijo.
 		trans = 0
-		pozChange = 0
-		love.graphics.translate( -krogi[poz][1] + love.graphics.getWidth()/2,
-			-krogi[poz][2] + love.graphics.getHeight()/2)
+		pozChange = false
+		love.graphics.translate( -t[poz][1] + width/2, -t[poz][2] + height/2)
 	end
 end
 
@@ -138,6 +140,7 @@ function love.load()
 
 
 	--poz pove v katerem krogu smo
+	--last pove kateri je bil tazadnji krog v kateremu smo bili
 	--pozChange pove, če je prišlo do dogodka, da se spremeni trenutni krog
 	--	(1 za naprej, -1 za nazaj)
 	--fi je trenutni kot okoli trenutnega kroga
@@ -145,7 +148,8 @@ function love.load()
 	--inside pove ali smo v ali zunaj kroga
 	--smer pove v katero smer se vrtimo
 	poz = 1
-	pozChange = 0
+	last = 1
+	pozChange = false
 	fi = 0
 	Rfig = 10
 	inside = 1
@@ -172,20 +176,14 @@ function love.update( dt )
 		konec = true
 		love.audio.play(zmaga)
 
-	elseif poz+1 <= numSeg and diff(x, y, krogi[poz+1][1], krogi[poz+1][2]) < (Rfig + krogi[poz+1][3])
-		and konec == false
-		and inside == -1 then
-		konec = true
-		love.audio.play(nalet)
-
-	elseif poz > 1 then
-		if diff(x, y, krogi[poz-1][1], krogi[poz-1][2]) < (Rfig + krogi[poz-1][3])
-			and konec == false
-			and inside == -1 then
-			konec = true
-			love.audio.play(nalet)
+	elseif inside == -1 and konec == false then
+		 -- Check if close enough to neigh in general
+		for k,neigh in ipairs(krogi[poz][4]) do
+			if diffFig( krogi, neigh, x, y ) < krogi[neigh][3] then
+				konec = true
+				love.audio.play(nalet)
+			end
 		end
-
 	end
 
 end
@@ -194,8 +192,8 @@ function love.draw()
 	if konec == false then
 		love.graphics.print( poz )
 		--naredimo prehodno animacijo za takrat, ko spremenimo krog
-		if pozChange ~= 0 then
-			camera_transition()
+		if pozChange then
+			camera_transition( krogi, last, poz, 20 )
 		else
 			love.graphics.translate( -krogi[poz][1] + love.graphics.getWidth()/2,
 				-krogi[poz][2] + love.graphics.getHeight()/2)
@@ -236,7 +234,9 @@ function love.keypressed( key, scancode, isrepeat )
 		for k,neigh in ipairs(krogi[poz][4]) do
 			if diffFig( krogi, neigh, x, y ) < (krogi[neigh][3])*Kbonus then
 				fi = angle( krogi, poz, neigh ) + m.pi
+				last = poz
 				poz = neigh
+				pozChange = true
 				smer = -smer
 				lock = true 
 				break
