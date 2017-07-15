@@ -231,14 +231,19 @@ function love.keypressed( key, scancode, isrepeat )
 		love.event.quit()
 	elseif scancode == "space" and konec == false then
 		love.audio.play(preskok)
-		for k,v in ipairs(krogi[poz][4]) do -- Check if close enough to neighs
-			if diffFig( krogi, v, x, y ) < (krogi[v][3])*Kbonus then
-				fi = angle( krogi, poz, v ) + m.pi
-				poz = v
+		 -- Check if close enough to neigh upon jumping
+		local lock = false
+		for k,neigh in ipairs(krogi[poz][4]) do
+			if diffFig( krogi, neigh, x, y ) < (krogi[neigh][3])*Kbonus then
+				fi = angle( krogi, poz, neigh ) + m.pi
+				poz = neigh
 				smer = -smer
-			else
-				inside = -inside
+				lock = true 
+				break
 			end
+		end
+		if not lock then
+			inside = -inside
 		end
 	elseif  scancode == 'r' then
 		love.load()
