@@ -1,19 +1,63 @@
 -- Narejeno na verziji Löve 0.10.2
 m = require "math"
 
+-- Check if the table contains one of the values
+local function has_value ( table, values)
+	for ktab, vtab in ipairs(table) do
+		for kvals, vvals in ipairs(values) do
+			if vtab == vvals then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function generate_circles( numSeg, starting, retries, exDist )
+	for i=starting,numSeg do
+		krogi = genone( krogi )
+
+		-- Check for circle colisions!!
+		-- If they colide, remove the last table entry
+		for j=1,i-1 do
+			-- preveri le za tiste kroge, ki hkrati niso sosedi
+			if not has_value( krogi[i][4], {j} ) then
+			-- if true then
+				if difft(krogi, i, j) < krogi[i][3] + krogi[j][3]+exDist then
+					if retries > 10 then
+						for iter=1,5 do
+							table.remove(krogi)
+						end
+						retries = 0
+						generate_circles( numSeg, #krogi+1, retries, 20 )
+						break
+					end
+					table.remove(krogi)
+					retries = retries + 1
+					generate_circles( numSeg, #krogi+1, retries, 20 )
+				end
+			end
+		end
+	end
+end
+
 -- razdalja med točkama
 function diff(x1, y1, x2, y2)
 	return m.sqrt( (x1 - x2)^2 + (y1 - y2)^2 )
 end
 
+-- razdalja med dvema krogoma (poz1 in poz2, ki ju najdemo v t)
 function difft( t, poz1, poz2 )
 	return m.sqrt( (t[poz1][1] - t[poz2][1])^2 + (t[poz1][2] - t[poz2][2])^2 )
 end
 
+-- razdalja med krogom poz, ki je v 't' in splošno x,y pozicijo (namenjeno figurici)
 function diffFig( t, poz, xpos, ypos )
 	return m.sqrt( (t[poz][1] - xpos)^2 + (t[poz][2] - ypos)^2 )
 end
 
+-- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin 
+-- dveh krogov, ki ju najdemo v 't'
 function angle( t, poz1, poz2 )
 	y1 = t[poz1][2]
 	x1 = t[poz1][1]
@@ -22,6 +66,7 @@ function angle( t, poz1, poz2 )
 	return m.atan2(  y2 - y1 , x2 - x1  )
 end
 
+-- generira en krog in ga doda v 't'
 function genone( t )
 	local L = #t
 	local preFi = angle( t, L-1 , L)
@@ -36,18 +81,6 @@ function genone( t )
 	table.insert(t, newCircle)
 
 	return t
-end
-
--- Check if the table contains one of the values
-local function has_value ( table, values)
-	for ktab, vtab in ipairs(table) do
-		for kvals, vvals in ipairs(values) do
-			if vtab == vvals then
-				return true
-			end
-		end
-	end
-	return false
 end
 
 function camera_transition( t, last, poz, steps  )
@@ -95,7 +128,7 @@ function love.load()
 	rmin = 40
 	rmax = 100
 	dfid = 0.9*m.pi/2
-	numSeg = 10
+	numSeg = 100
 	konec = false
 	Kbonus = 1.3
 
@@ -116,28 +149,7 @@ function love.load()
 	local Pone = 1
 	local Pfour = 0
 
-	local retries = 0
-	for i=3,numSeg do
-		::RETRY::
-		krogi = genone( krogi )
-
-		-- Check for circle colisions!!
-		-- If they colide, remove the last table entry
-		for j=1,i-1 do
-			if not has_value( krogi[i][4], {j} ) then
-			-- if true then
-				if difft( krogi, i, j )+10 < krogi[i][3] + krogi[j][3] then
-					table.remove(krogi, #krogi)
-					retries = retries + 1
-					if retries > 2 then
-						love.load()
-					end
-					goto RETRY -- I am so sorry...
-				end
-			end
-		end
-	end
-
+	generate_circles(numSeg, 3, 0, 20)
 
 	--poz pove v katerem krogu smo
 	--last pove kateri je bil tazadnji krog v kateremu smo bili
