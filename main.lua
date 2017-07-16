@@ -2,7 +2,7 @@
 m = require "math"
 
 -- Check if the table contains one of the values
-local function has_value ( table, values)
+function has_value ( table, values)
 	for ktab, vtab in ipairs(table) do
 		for kvals, vvals in ipairs(values) do
 			if vtab == vvals then
@@ -16,7 +16,6 @@ end
 function generate_circles( numSeg, starting, retries, exDist )
 	for i=starting,numSeg do
 		krogi = genone( krogi )
-
 		-- Check for circle colisions!!
 		-- If they colide, remove the last table entry
 		for j=1,i-1 do
@@ -41,6 +40,21 @@ function generate_circles( numSeg, starting, retries, exDist )
 	end
 end
 
+function generate_npcs( t, Pnpc )
+	table.insert(t[1], {})
+	for i=2,numSeg do
+		if m.random() < Pnpc then
+			local randFi = m.random( -m.pi, m.pi )
+			local xpos = krogi[i][1] + (krogi[i][3] - Rfig)*m.cos(randFi)
+			local ypos = krogi[i][2] + (krogi[i][3] - Rfig)*m.sin(randFi)
+			table.insert(t[i], { xpos, ypos })
+		else
+			table.insert(t[i], {})
+		end
+	end
+	return t
+end
+
 -- razdalja med točkama
 function diff(x1, y1, x2, y2)
 	return m.sqrt( (x1 - x2)^2 + (y1 - y2)^2 )
@@ -58,7 +72,7 @@ end
 
 -- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin 
 -- dveh krogov, ki ju najdemo v 't'
-function angle( t, poz1, poz2 )
+function anglet( t, poz1, poz2 )
 	y1 = t[poz1][2]
 	x1 = t[poz1][1]
 	y2 = t[poz2][2]
@@ -69,7 +83,7 @@ end
 -- generira en krog in ga doda v 't'
 function genone( t )
 	local L = #t
-	local preFi = angle( t, L-1 , L)
+	local preFi = anglet( t, L-1 , L)
 	local randFi = m.random( -dfid*100, dfid*100 )/100
 	local newFi = preFi + randFi
 	local randR = m.random( rmin, rmax )
@@ -128,7 +142,8 @@ function love.load()
 	rmin = 40
 	rmax = 100
 	dfid = 0.9*m.pi/2
-	numSeg = 100
+	Rfig = 10
+	numSeg = 10
 	konec = false
 	Kbonus = 1.3
 
@@ -151,6 +166,12 @@ function love.load()
 
 	generate_circles(numSeg, 3, 0, 20)
 
+	-- generate_npcs( t, Pnpc )
+	-- t = tabela krogov
+	-- Pnpc = verjetnost, da bo v nekem krogu npc
+	Pnpc = 0.5
+	krogi = generate_npcs( krogi, Pnpc)
+
 	--poz pove v katerem krogu smo
 	--last pove kateri je bil tazadnji krog v kateremu smo bili
 	--pozChange pove, če je prišlo do dogodka, da se spremeni trenutni krog
@@ -163,7 +184,6 @@ function love.load()
 	last = 1
 	pozChange = false
 	fi = 0
-	Rfig = 10
 	inside = 1
 	smer = 1
 
@@ -175,7 +195,7 @@ end
 
 function love.update( dt )
 	if konec == false then
-		fi = fi%(2*m.pi) + 2*m.pi/krogi[poz][3]*smer
+		fi = fi%(2*m.pi) + 2*m.pi/krogi[poz][3]*smer*(2/3)
 		if fi > 2*m.pi then
 			fi = 0
 		end
@@ -192,6 +212,13 @@ function love.update( dt )
 		 -- Check if close enough to neigh in general
 		for k,neigh in ipairs(krogi[poz][4]) do
 			if diffFig( krogi, neigh, x, y ) < krogi[neigh][3] then
+				konec = true
+				love.audio.play(nalet)
+			end
+		end
+	elseif konec == false then
+		if #krogi[poz][5] == 2 then
+			if diff( x, y, krogi[poz][5][1], krogi[poz][5][2] ) < 2*Rfig then
 				konec = true
 				love.audio.play(nalet)
 			end
@@ -229,10 +256,14 @@ function love.draw()
 
 	end
 
-	--Nariše kroge
+	--Nariše kroge in npcje
 	for i=1,numSeg do
 		love.graphics.setColor( 255, 255, 255)
 		love.graphics.circle( "line", krogi[i][1], krogi[i][2], krogi[i][3], 100 )
+		if #krogi[i][5]==2 then
+			love.graphics.setColor( 0, 0, 255)
+			love.graphics.circle( "fill", krogi[i][5][1], krogi[i][5][2], Rfig, 100 )
+		end
 	end
 
 	love.graphics.setColor(255, 0, 0)
@@ -248,7 +279,7 @@ function love.keypressed( key, scancode, isrepeat )
 		local lock = false
 		for k,neigh in ipairs(krogi[poz][4]) do
 			if diffFig( krogi, neigh, x, y ) < (krogi[neigh][3])*Kbonus then
-				fi = angle( krogi, poz, neigh ) + m.pi
+				fi = anglet( krogi, poz, neigh ) + m.pi
 				last = poz
 				poz = neigh
 				pozChange = true
