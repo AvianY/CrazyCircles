@@ -1,10 +1,22 @@
 -- Narejeno na verziji Löve 0.10.2
 m = require "math"
 
+trans = 0
+rmin = 40
+rmax = 100
+dfid = 0.9*m.pi/2
+Rfig = 10
+numSeg = 10
+konec = false
+Kbonus = 1.3
+Pnpc = 0.5
+
+
+
 -- Check if the table contains one of the values
 function has_value ( table, values)
-	for ktab, vtab in ipairs(table) do
-		for kvals, vvals in ipairs(values) do
+	for _, vtab in ipairs(table) do
+		for _, vvals in ipairs(values) do
 			if vtab == vvals then
 				return true
 			end
@@ -13,40 +25,41 @@ function has_value ( table, values)
 	return false
 end
 
-function generate_circles( numSeg, starting, retries, exDist )
-	for i=starting,numSeg do
-		krogi = genone( krogi )
+function generate_circles( t, numseg, starting, retries, exDist )
+	for i=starting,numseg do
+		t = genone( t )
 		-- Check for circle colisions!!
 		-- If they colide, remove the last table entry
 		for j=1,i-1 do
 			-- preveri le za tiste kroge, ki hkrati niso sosedi
-			if not has_value( krogi[i][4], {j} ) then
+			if not has_value( t[i][4], {j} ) then
 			-- if true then
-				if difft(krogi, i, j) < krogi[i][3] + krogi[j][3]+exDist then
+				if difft(t, i, j) < t[i][3] + t[j][3]+exDist then
 					if retries > 10 then
-						for iter=1,5 do
-							table.remove(krogi)
+						for _=1,5 do
+							table.remove(t)
 						end
 						retries = 0
-						generate_circles( numSeg, #krogi+1, retries, 20 )
+						generate_circles( t, numseg, #t+1, retries, 20 )
 						break
 					end
-					table.remove(krogi)
+					table.remove(t)
 					retries = retries + 1
-					generate_circles( numSeg, #krogi+1, retries, 20 )
+					generate_circles( t, numseg, #t+1, retries, 20 )
+					break
 				end
 			end
 		end
 	end
 end
 
-function generate_npcs( t, Pnpc )
+function generate_npcs( t )
 	table.insert(t[1], {})
 	for i=2,numSeg do
 		if m.random() < Pnpc then
 			local randFi = m.random( -m.pi, m.pi )
-			local xpos = krogi[i][1] + (krogi[i][3] - Rfig)*m.cos(randFi)
-			local ypos = krogi[i][2] + (krogi[i][3] - Rfig)*m.sin(randFi)
+			local xpos = t[i][1] + (t[i][3] - Rfig)*m.cos(randFi)
+			local ypos = t[i][2] + (t[i][3] - Rfig)*m.sin(randFi)
 			table.insert(t[i], { xpos, ypos })
 		else
 			table.insert(t[i], {})
@@ -70,13 +83,13 @@ function diffFig( t, poz, xpos, ypos )
 	return m.sqrt( (t[poz][1] - xpos)^2 + (t[poz][2] - ypos)^2 )
 end
 
--- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin 
+-- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin
 -- dveh krogov, ki ju najdemo v 't'
 function anglet( t, poz1, poz2 )
-	y1 = t[poz1][2]
-	x1 = t[poz1][1]
-	y2 = t[poz2][2]
-	x2 = t[poz2][1]
+	local y1 = t[poz1][2]
+	local x1 = t[poz1][1]
+	local y2 = t[poz2][2]
+	local x2 = t[poz2][1]
 	return m.atan2(  y2 - y1 , x2 - x1  )
 end
 
@@ -109,7 +122,7 @@ function camera_transition( t, last, poz, steps  )
 		trans = trans + 1
 	else
 		--ponastavimo spremenljivke in upoštevamo, da se ob koncu "iteracije"
-		--izvede zadnja iteracija, kjer se mora zoper kamera premaknit na 
+		--izvede zadnja iteracija, kjer se mora zoper kamera premaknit na
 		--pravo mesto in zato moramo še tu postavit primerno tranzlacijo.
 		trans = 0
 		pozChange = false
@@ -134,23 +147,6 @@ function love.load()
 	font = love.graphics.newFont(20) -- the number denotes the font size
 	love.graphics.setFont(font)
 
-	--rmin = najmanjši polmer kroga
-	--rmax = največji polmer kroga
-	--dfid = največji kotni odmik do naslednje točke
-	--numSeg = število krogov
-	--konec = preveri ali je konec igre
-	rmin = 40
-	rmax = 100
-	dfid = 0.9*m.pi/2
-	Rfig = 10
-	numSeg = 10
-	konec = false
-	Kbonus = 1.3
-
-	trans = 0
-
-	-- krogi = x, y, r
-
 	--generira prvi in drugi krog
 	krogi = { {300, 300, m.random( rmin, rmax ), {2}} }
 
@@ -164,13 +160,12 @@ function love.load()
 	local Pone = 1
 	local Pfour = 0
 
-	generate_circles(numSeg, 3, 0, 20)
+	generate_circles( krogi, numSeg, 3, 0, 20)
 
 	-- generate_npcs( t, Pnpc )
 	-- t = tabela krogov
 	-- Pnpc = verjetnost, da bo v nekem krogu npc
-	Pnpc = 0.5
-	krogi = generate_npcs( krogi, Pnpc)
+	krogi = generate_npcs( krogi, Pnpc, numSeg)
 
 	--poz pove v katerem krogu smo
 	--last pove kateri je bil tazadnji krog v kateremu smo bili
