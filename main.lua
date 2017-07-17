@@ -40,14 +40,29 @@ function generate_circles( numSeg, starting, retries, exDist )
 	end
 end
 
+-- generira enemy-je
 function generate_npcs( t, Pnpc )
 	table.insert(t[1], {})
+	newBonus = 1.5
 	for i=2,numSeg do
 		if m.random() < Pnpc then
+			place = 1
 			local randFi = m.random( -m.pi, m.pi )
 			local xpos = krogi[i][1] + (krogi[i][3] - Rfig)*m.cos(randFi)
 			local ypos = krogi[i][2] + (krogi[i][3] - Rfig)*m.sin(randFi)
-			table.insert(t[i], { xpos, ypos })
+			for k,neigh in ipairs(krogi[i][4]) do
+				if diffFig( krogi, neigh, xpos, ypos ) < (krogi[neigh][3])*newBonus then
+					place = 0
+				end
+			end
+			if krogi[i][3] < 70 then
+				place = 0
+			end
+			if place == 1 then
+				table.insert(t[i], { xpos, ypos })
+			else
+				table.insert(t[i], {})
+			end
 		else
 			table.insert(t[i], {})
 		end
@@ -169,7 +184,7 @@ function love.load()
 	-- generate_npcs( t, Pnpc )
 	-- t = tabela krogov
 	-- Pnpc = verjetnost, da bo v nekem krogu npc
-	Pnpc = 0.5
+	Pnpc = 0.75
 	krogi = generate_npcs( krogi, Pnpc)
 
 	--poz pove v katerem krogu smo
