@@ -6,10 +6,10 @@ rmin = 40
 rmax = 100
 dfid = 0.9*m.pi/2
 Rfig = 10
-numSeg = 10
+numSeg = 20
 konec = false
 Kbonus = 1.3
-Pnpc = 0.5
+Pnpc = 1
 
 
 
@@ -53,14 +53,36 @@ function generate_circles( t, numseg, starting, retries, exDist )
 	end
 end
 
-function generate_npcs( t )
+
+-- generira enemy-je
+function generate_npcs( t, Pnpc )
 	table.insert(t[1], {})
+	local newBonus = 1.5
 	for i=2,numSeg do
 		if m.random() < Pnpc then
+			local place = 1
+			local inout = m.random()
+			if inout < 0.33 then
+				inout = -1
+			else
+				inout = 1
+			end
 			local randFi = m.random( -m.pi, m.pi )
-			local xpos = t[i][1] + (t[i][3] - Rfig)*m.cos(randFi)
-			local ypos = t[i][2] + (t[i][3] - Rfig)*m.sin(randFi)
-			table.insert(t[i], { xpos, ypos })
+			local xpos = t[i][1] + (krogi[i][3] - Rfig*inout)*m.cos(randFi)
+			local ypos = t[i][2] + (krogi[i][3] - Rfig*inout)*m.sin(randFi)
+			for _,neigh in ipairs(t[i][4]) do
+				if diffFig( t, neigh, xpos, ypos ) < (t[neigh][3])*newBonus then
+					place = 0
+				end
+			end
+			if t[i][3] < 70 then
+				place = 0
+			end
+			if place == 1 then
+				table.insert(t[i], { xpos, ypos })
+			else
+				table.insert(t[i], {})
+			end
 		else
 			table.insert(t[i], {})
 		end
@@ -165,7 +187,10 @@ function love.load()
 	-- generate_npcs( t, Pnpc )
 	-- t = tabela krogov
 	-- Pnpc = verjetnost, da bo v nekem krogu npc
-	krogi = generate_npcs( krogi, Pnpc, numSeg)
+
+	Pnpc = 0.75
+	krogi = generate_npcs( krogi, Pnpc)
+
 
 	--poz pove v katerem krogu smo
 	--last pove kateri je bil tazadnji krog v kateremu smo bili
@@ -211,7 +236,8 @@ function love.update( dt )
 				love.audio.play(nalet)
 			end
 		end
-	elseif konec == false then
+	end
+	if konec == false then
 		if #krogi[poz][5] == 2 then
 			if diff( x, y, krogi[poz][5][1], krogi[poz][5][2] ) < 2*Rfig then
 				konec = true
@@ -248,7 +274,6 @@ function love.draw()
 		if trans < 20 then
 			trans = trans + 0.01
 		end
-
 	end
 
 	--Nariše kroge in npcje
@@ -287,6 +312,7 @@ function love.keypressed( key, scancode, isrepeat )
 			inside = -inside
 		end
 	elseif  scancode == 'n' then
+		konec = false
 		love.load()
 	elseif  scancode == 'r' then
 		poz = 1
