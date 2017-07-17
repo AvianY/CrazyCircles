@@ -47,9 +47,15 @@ function generate_npcs( t, Pnpc )
 	for i=2,numSeg do
 		if m.random() < Pnpc then
 			place = 1
+			inout = m.random()
+			if inout < 0.33 then
+				inout = -1
+			else
+				inout = 1
+			end
 			local randFi = m.random( -m.pi, m.pi )
-			local xpos = krogi[i][1] + (krogi[i][3] - Rfig)*m.cos(randFi)
-			local ypos = krogi[i][2] + (krogi[i][3] - Rfig)*m.sin(randFi)
+			local xpos = krogi[i][1] + (krogi[i][3] - Rfig*inout)*m.cos(randFi)
+			local ypos = krogi[i][2] + (krogi[i][3] - Rfig*inout)*m.sin(randFi)
 			for k,neigh in ipairs(krogi[i][4]) do
 				if diffFig( krogi, neigh, xpos, ypos ) < (krogi[neigh][3])*newBonus then
 					place = 0
