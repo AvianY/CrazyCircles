@@ -10,6 +10,7 @@ numSeg = 20
 konec = false
 Kbonus = 1.3
 Pnpc = 1
+Pnpc = 0.75
 
 
 
@@ -55,39 +56,37 @@ end
 
 
 -- generira enemy-je
-function generate_npcs( t, Pnpc )
+function generate_npcs( t, Pnpc, minR )
 	table.insert(t[1], {})
-	local newBonus = 1.5
 	for i=2,numSeg do
-		if m.random() < Pnpc then
-			local place = 1
-			local inout = m.random()
-			if inout < 0.33 then
+		table.insert(t[i], {})
+		if m.random() < Pnpc and
+				t[i][3] < minR then
+			local inout = m.random(-1, 1)
+			if inout <= 0 then
 				inout = -1
 			else
 				inout = 1
 			end
-			local randFi = m.random( -m.pi, m.pi )
-			local xpos = t[i][1] + (krogi[i][3] - Rfig*inout)*m.cos(randFi)
-			local ypos = t[i][2] + (krogi[i][3] - Rfig*inout)*m.sin(randFi)
-			for _,neigh in ipairs(t[i][4]) do
-				if diffFig( t, neigh, xpos, ypos ) < (t[neigh][3])*newBonus then
-					place = 0
-				end
-			end
-			if t[i][3] < 70 then
-				place = 0
-			end
-			if place == 1 then
-				table.insert(t[i], { xpos, ypos })
-			else
-				table.insert(t[i], {})
-			end
-		else
-			table.insert(t[i], {})
+			repeat
+				local randFi = m.random( -m.pi, m.pi )
+				local xpos = t[i][1] + (krogi[i][3] - Rfig*inout)*m.cos(randFi)
+				local ypos = t[i][2] + (krogi[i][3] - Rfig*inout)*m.sin(randFi)
+				local newBonus = 1.5
+			until tooCloseCirc( t, t[i][4], {xpos, ypos}, newBonus )
+			table.insert(t[i][5], { xpos, ypos })
 		end
 	end
 	return t
+end
+
+function tooCloseCirc( t, pozs, point, Kbonus )
+	for _,krog in ipairs(pozs) do
+		if diffFig( t, krog, point[1], point[2] ) < (t[krog][3])*Kbonus then
+			return true
+		end
+	end
+	return false
 end
 
 -- razdalja med točkama
@@ -188,8 +187,7 @@ function love.load()
 	-- t = tabela krogov
 	-- Pnpc = verjetnost, da bo v nekem krogu npc
 
-	Pnpc = 0.75
-	krogi = generate_npcs( krogi, Pnpc)
+	krogi = generate_npcs( krogi, Pnpc, 70)
 
 
 	--poz pove v katerem krogu smo
@@ -238,8 +236,8 @@ function love.update( dt )
 		end
 	end
 	if konec == false then
-		if #krogi[poz][5] == 2 then
-			if diff( x, y, krogi[poz][5][1], krogi[poz][5][2] ) < 2*Rfig then
+		if #krogi[poz][5] > 0 then
+			if diff( x, y, krogi[poz][5][1][1], krogi[poz][5][1][2] ) < 2*Rfig then
 				konec = true
 				love.audio.play(nalet)
 			end
@@ -280,9 +278,9 @@ function love.draw()
 	for i=1,numSeg do
 		love.graphics.setColor( 255, 255, 255)
 		love.graphics.circle( "line", krogi[i][1], krogi[i][2], krogi[i][3], 100 )
-		if #krogi[i][5]==2 then
+		if #krogi[i][5] > 0 then
 			love.graphics.setColor( 0, 0, 255)
-			love.graphics.circle( "fill", krogi[i][5][1], krogi[i][5][2], Rfig, 100 )
+			love.graphics.circle( "fill", krogi[i][5][1][1], krogi[i][5][1][2], Rfig, 100 )
 		end
 	end
 
