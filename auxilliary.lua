@@ -16,7 +16,7 @@ end
 -- which are listed in "pozs"
 function farEnough( t, pozs, point, Kbonus )
 	for _,krog in ipairs(pozs) do
-		if diffFig( t, krog, point[1], point[2] ) < (t[krog][3]) + Kbonus then
+		if diffFig( t, krog, point[1], point[2] ) < (t[krog].r) + Kbonus then
 			return false
 		end
 	end
@@ -30,21 +30,21 @@ end
 
 -- razdalja med dvema krogoma (poz1 in poz2, ki ju najdemo v t)
 function difft( t, poz1, poz2 )
-	return m.sqrt( (t[poz1][1] - t[poz2][1])^2 + (t[poz1][2] - t[poz2][2])^2 )
+	return m.sqrt( (t[poz1].x - t[poz2].x)^2 + (t[poz1].y - t[poz2].y)^2 )
 end
 
 -- razdalja med krogom poz, ki je v 't' in splošno x,y pozicijo (namenjeno figurici)
 function diffFig( t, poz, xpos, ypos )
-	return m.sqrt( (t[poz][1] - xpos)^2 + (t[poz][2] - ypos)^2 )
+	return m.sqrt( (t[poz].x - xpos)^2 + (t[poz].y - ypos)^2 )
 end
 
 -- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin
 -- dveh krogov, ki ju najdemo v 't'
 function anglet( t, poz1, poz2 )
-	local y1 = t[poz1][2]
-	local x1 = t[poz1][1]
-	local y2 = t[poz2][2]
-	local x2 = t[poz2][1]
+	local y1 = t[poz1].y
+	local x1 = t[poz1].x
+	local y2 = t[poz2].y
+	local x2 = t[poz2].x
 	return m.atan2(  y2 - y1 , x2 - x1  )
 end
 
@@ -55,8 +55,8 @@ function camera_transition( t, last, poz, steps  )
 	if trans <= steps then
 		-- najprej odmaknemo pogled od izhodišča do trenutnega kroga,
 		-- nato pa vsakič se pomaknemo za večji odmik proti naslednjemu
-		love.graphics.translate(-t[last][1] + width/2, -t[last][2] + height/2)
-		love.graphics.translate((-t[poz][1] + t[last][1])*ratio, (-t[poz][2] + t[last][2])*ratio)
+		love.graphics.translate(-t[last].x + width/2, -t[last].y + height/2)
+		love.graphics.translate((-t[poz].x + t[last].x)*ratio, (-t[poz].y + t[last].y)*ratio)
 		trans = trans + 1
 	else
 		--ponastavimo spremenljivke in upoštevamo, da se ob koncu "iteracije"
@@ -64,6 +64,6 @@ function camera_transition( t, last, poz, steps  )
 		--pravo mesto in zato moramo še tu postavit primerno tranzlacijo.
 		trans = 0
 		pozChange = false
-		love.graphics.translate( -t[poz][1] + width/2, -t[poz][2] + height/2)
+		love.graphics.translate( -t[poz].x + width/2, -t[poz].y + height/2)
 	end
 end
