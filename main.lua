@@ -36,13 +36,13 @@ function love.load()
 	love.graphics.setFont(font)
 
 	--generira prvi in drugi krog
-	krogi = { {300, 300, m.random( rmin, rmax ), {2}} }
+	krogi = { {x = 300, y = 300, r = m.random( rmin, rmax ), ngs = {2}, npcs = {}} }
 
 	local randFi = m.random( -100*m.pi, 100*m.pi)/100
 	local randR = m.random( rmin, rmax )
-	sekX = krogi[1][1] + (randR + krogi[1][3])*m.cos(randFi)
-	sekY = krogi[1][2] + (randR + krogi[1][3])*m.sin(randFi)
-	table.insert( krogi, { sekX, sekY, randR, {1} })
+	sekX = krogi[1].x + (randR + krogi[1].r)*m.cos(randFi)
+	sekY = krogi[1].y + (randR + krogi[1].r)*m.sin(randFi)
+	table.insert( krogi, { x = sekX, y = sekY, r = randR, ngs = {1}, npcs = {}} )
 
 	--generira kroge
 	local Pone = 1
@@ -72,22 +72,22 @@ function love.load()
 	inside = 1
 	smer = 1
 
-	x = krogi[poz][1] + (krogi[poz][3] - Rfig*inside)*m.cos(fi)
-	y = krogi[poz][2] + (krogi[poz][3] - Rfig*inside)*m.sin(fi)
+	x = krogi[poz].x + (krogi[poz].r - Rfig*inside)*m.cos(fi)
+	y = krogi[poz].y + (krogi[poz].r - Rfig*inside)*m.sin(fi)
 
 	love.audio.play(zacetek)
 end
 
 function love.update( dt )
 	if konec == false then
-		fi = fi%(2*m.pi) + 2*m.pi/krogi[poz][3]*smer*(2/3)
+		fi = fi%(2*m.pi) + 2*m.pi/krogi[poz].r*smer*(2/3)
 		if fi > 2*m.pi then
 			fi = 0
 		end
 	end
 
-	x = krogi[poz][1] + (krogi[poz][3] - Rfig*inside)*m.cos(fi)
-	y = krogi[poz][2] + (krogi[poz][3] - Rfig*inside)*m.sin(fi)
+	x = krogi[poz].x + (krogi[poz].r - Rfig*inside)*m.cos(fi)
+	y = krogi[poz].y + (krogi[poz].r - Rfig*inside)*m.sin(fi)
 
 	if poz == numSeg and konec == false then
 		konec = true
@@ -95,16 +95,16 @@ function love.update( dt )
 
 	elseif inside == -1 and konec == false then
 		 -- Check if close enough to neigh in general
-		for k,neigh in ipairs(krogi[poz][4]) do
-			if diffFig( krogi, neigh, x, y ) < krogi[neigh][3] then
+		for k,neigh in ipairs(krogi[poz].ngs) do
+			if diffFig( krogi, neigh, x, y ) < krogi[neigh].r then
 				konec = true
 				love.audio.play(nalet)
 			end
 		end
 	end
 	if konec == false then
-		if #krogi[poz][5] > 0 then
-			if diff( x, y, krogi[poz][5][1][1], krogi[poz][5][1][2] ) < Rfig+Rnpc then
+		if #krogi[poz].npcs > 0 then
+			if diff( x, y, krogi[poz].npcs[1][1], krogi[poz].npcs[1][2] ) < Rfig+Rnpc then
 				konec = true
 				love.audio.play(nalet)
 			end
@@ -120,8 +120,8 @@ function love.draw()
 		if pozChange then
 			camera_transition( krogi, last, poz, 20 )
 		else
-			love.graphics.translate( -krogi[poz][1] + love.graphics.getWidth()/2,
-				-krogi[poz][2] + love.graphics.getHeight()/2)
+			love.graphics.translate( -krogi[poz].x + love.graphics.getWidth()/2,
+				-krogi[poz].y + love.graphics.getHeight()/2)
 		end
 	else
 		if poz < numSeg then
@@ -134,8 +134,8 @@ function love.draw()
 		love.graphics.print("Press 'n' to start a new track", 280, 360)
 		love.graphics.print("or 'q' to quit", 300, 380)
 		love.graphics.scale( 1/(trans + 1), 1/(trans + 1) )
-		love.graphics.translate( -(krogi[poz][1] - krogi[1][1])/2 + love.graphics.getWidth()/2*(trans+1),
-			-(krogi[poz][2] - krogi[1][2])/2 + love.graphics.getHeight()/2*(trans+1))
+		love.graphics.translate( -(krogi[poz].x - krogi[1].x)/2 + love.graphics.getWidth()/2*(trans+1),
+			-(krogi[poz].y - krogi[1].y)/2 + love.graphics.getHeight()/2*(trans+1))
 		if trans < 20 then
 			trans = trans + 0.01
 		end
@@ -144,10 +144,10 @@ function love.draw()
 	--Nariše kroge in npcje
 	for i=1,numSeg do
 		love.graphics.setColor( 255, 255, 255)
-		love.graphics.circle( "line", krogi[i][1], krogi[i][2], krogi[i][3], 100 )
-		if #krogi[i][5] > 0 then
+		love.graphics.circle( "line", krogi[i].x, krogi[i].y, krogi[i].r, 100 )
+		if #krogi[i].npcs > 0 then
 			love.graphics.setColor( 0, 0, 255)
-			love.graphics.circle( "fill", krogi[i][5][1][1], krogi[i][5][1][2], Rnpc, 100 )
+			love.graphics.circle( "fill", krogi[i].npcs[1][1], krogi[i].npcs[1][2], Rnpc, 100 )
 		end
 	end
 
@@ -162,8 +162,8 @@ function love.keypressed( key, scancode, isrepeat )
 		love.audio.play(preskok)
 		 -- Check if close enough to neigh upon jumping
 		local lock = false
-		for k,neigh in ipairs(krogi[poz][4]) do
-			if diffFig( krogi, neigh, x, y ) < (krogi[neigh][3])*Kbonus then
+		for k,neigh in ipairs(krogi[poz].ngs) do
+			if diffFig( krogi, neigh, x, y ) < (krogi[neigh].r)*Kbonus then
 				fi = anglet( krogi, poz, neigh ) + m.pi
 				last = poz
 				poz = neigh
