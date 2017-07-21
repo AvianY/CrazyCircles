@@ -30,7 +30,7 @@ end
 -- generira enemy-je
 function generate_npcs( t, Pnpc, minR )
 	local newBonus = 30
-	for i=2,numSeg do
+	for i=2,krg.numKrg do
 		if m.random() < Pnpc and
 				t[i].r < minR then
 			local inout = m.random(-1, 1)
@@ -47,7 +47,7 @@ function generate_npcs( t, Pnpc, minR )
 				 xpos = t[i].x + (t[i].r - Rnpc*inout)*m.cos(randFi)
 				 ypos = t[i].y + (t[i].r - Rnpc*inout)*m.sin(randFi)
 			until farEnough( t, t[i].ngs, {xpos, ypos}, newBonus )
-			table.insert(t[i].npcs, { xpos, ypos })
+			table.insert(t[i].npcs, { x = xpos, y = ypos })
 		end
 	end
 	return t
@@ -57,9 +57,9 @@ end
 function genone( t )
 	local L = #t
 	local preFi = anglet( t, L-1 , L)
-	local randFi = m.random( -dfid*100, dfid*100 )/100
+	local randFi = m.random( -krg.dfid*100, krg.dfid*100 )/100
 	local newFi = preFi + randFi
-	local randR = m.random( rmin, rmax )
+	local randR = m.random( krg.rmin, krg.rmax )
 	local newX = t[L].x + ( randR + t[L].r )*m.cos(newFi)
 	local newY = t[L].y + ( randR + t[L].r )*m.sin(newFi)
 	local newCircle = { x = newX, y = newY, r = randR, ngs = {L}, npcs = {} }

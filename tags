@@ -1,0 +1,20 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+anglet	auxilliary.lua	/^function anglet( t, poz1, poz2 )$/;"	f
+camera_transition	auxilliary.lua	/^function camera_transition( t, last, poz, steps  )$/;"	f
+diff	auxilliary.lua	/^function diff(x1, y1, x2, y2)$/;"	f
+diffFig	auxilliary.lua	/^function diffFig( t, poz, xpos, ypos )$/;"	f
+difft	auxilliary.lua	/^function difft( t, poz1, poz2 )$/;"	f
+farEnough	auxilliary.lua	/^function farEnough( t, pozs, point, Kbonus )$/;"	f
+generate_circles	generators.lua	/^function generate_circles( t, numseg, starting, retries, exDist )$/;"	f
+generate_npcs	generators.lua	/^function generate_npcs( t, Pnpc, minR )$/;"	f
+genone	generators.lua	/^function genone( t )$/;"	f
+has_value 	auxilliary.lua	/^function has_value ( table, values)$/;"	f
+love.draw	main.lua	/^function love.draw()$/;"	f
+love.keypressed	main.lua	/^function love.keypressed( key, scancode, isrepeat )$/;"	f
+love.load	main.lua	/^function love.load()$/;"	f
+love.update	main.lua	/^function love.update( dt )$/;"	f
