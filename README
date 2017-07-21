@@ -14,15 +14,18 @@ https://github.com/mpeterv/luacheck
 ter njegovo dokumentacijo na naslovu:
 http://luacheck.readthedocs.io/en/stable/index.html
 
+Upoštevamo naslednja programerska pravila za ta projekt:
+-> Krogi bodo uporabljeni v naslednjem formatu: 
+	- Število zaporednega kroga se bo dostopalo preko prvega elementa, ki bo število.
+	- Vse lastnosti določenega kroga, se bodo dostopale preko smiselne 'key' besede.
 
+-> Vse funkcije bodo smiselno razporejene v ločene .lua fajle.
+
+-> Če se le da, so spremenljivke lokalne in se lokalno prenašajo med funkcijami.
 
 Trenutno se za projekt uporablja lua, verzije 5.3 ter löve verzije 0.10.2
 
 TODO:
 
-OPRAVLJENO! 1) Zamenjaj klice funkcij, tako da bodo kompatibilni z verzijo löve-a 10.2.
 2) Popravi tranzicijo kroglice, tako da bo zvezno preskočila na sosednji krog.
 ZASILNO REŠENO 3) Popravi skok kroglice, tako da bo pristala na čim bližnjem mestu od mesta odskoka.
-4) Spremeni način obravnave krogov pri koliziji in skakanju, tako da ne bo 
-	omejeno na enega prej ter enega kasneje ( Poljubno število krogov ).
-	Hkrati še poskusi rešit poseben primer za prvi krog.
