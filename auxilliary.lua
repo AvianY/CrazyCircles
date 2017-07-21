@@ -63,7 +63,7 @@ function camera_transition( t, last, poz, steps  )
 		--izvede zadnja iteracija, kjer se mora zoper kamera premaknit na
 		--pravo mesto in zato moramo še tu postavit primerno tranzlacijo.
 		trans = 0
-		pozChange = false
+		game.pozChange = false
 		love.graphics.translate( -t[poz].x + width/2, -t[poz].y + height/2)
 	end
 end

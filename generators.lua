@@ -28,10 +28,10 @@ function generate_circles( t, numseg, starting, retries, exDist )
 end
 
 -- generira enemy-je
-function generate_npcs( t, Pnpc, minR )
+function generate_npcs( t, minR )
 	local newBonus = 30
-	for i=2,krg.numKrg do
-		if m.random() < Pnpc and
+	for i=2,t.numKrg do
+		if m.random() < t.Pnpc and
 				t[i].r < minR then
 			local inout = m.random(-1, 1)
 			if inout <= 0 then
@@ -44,8 +44,8 @@ function generate_npcs( t, Pnpc, minR )
 			local ypos
 			repeat
 				 randFi = m.random( -m.pi, m.pi )
-				 xpos = t[i].x + (t[i].r - Rnpc*inout)*m.cos(randFi)
-				 ypos = t[i].y + (t[i].r - Rnpc*inout)*m.sin(randFi)
+				 xpos = t[i].x + (t[i].r - t.Rnpc*inout)*m.cos(randFi)
+				 ypos = t[i].y + (t[i].r - t.Rnpc*inout)*m.sin(randFi)
 			until farEnough( t, t[i].ngs, {xpos, ypos}, newBonus )
 			table.insert(t[i].npcs, { x = xpos, y = ypos })
 		end
