@@ -1,11 +1,14 @@
 -- Narejeno na verziji Löve 0.10.2
 m = require "math"
+require "auxilliary"
+require "generators"
 
 trans = 0
 rmin = 40
 rmax = 100
 dfid = 0.9*m.pi/2
 Rfig = 10
+Rnpc = 7
 numSeg = 20
 konec = false
 Kbonus = 1.3
@@ -14,145 +17,6 @@ Pnpc = 0.75
 
 
 
--- Check if the table contains one of the values
-function has_value ( table, values)
-	for _, vtab in ipairs(table) do
-		for _, vvals in ipairs(values) do
-			if vtab == vvals then
-				return true
-			end
-		end
-	end
-	return false
-end
-
-function generate_circles( t, numseg, starting, retries, exDist )
-	for i=starting,numseg do
-		t = genone( t )
-		-- Check for circle colisions!!
-		-- If they colide, remove the last table entry
-		for j=1,i-1 do
-			-- preveri le za tiste kroge, ki hkrati niso sosedi
-			if not has_value( t[i][4], {j} ) then
-			-- if true then
-				if difft(t, i, j) < t[i][3] + t[j][3]+exDist then
-					if retries > 10 then
-						for _=1,5 do
-							table.remove(t)
-						end
-						retries = 0
-						generate_circles( t, numseg, #t+1, retries, 20 )
-						break
-					end
-					table.remove(t)
-					retries = retries + 1
-					generate_circles( t, numseg, #t+1, retries, 20 )
-					break
-				end
-			end
-		end
-	end
-end
-
-
--- generira enemy-je
-function generate_npcs( t, Pnpc, minR )
-	local newBonus = 1.5
-	table.insert(t[1], {})
-	for i=2,numSeg do
-		table.insert(t[i], {})
-		if m.random() < Pnpc and
-				t[i][3] < minR then
-			local inout = m.random(-1, 1)
-			if inout <= 0 then
-				inout = -1
-			else
-				inout = 1
-			end
-			local randFi
-			local xpos
-			local ypos
-			repeat
-				 randFi = m.random( -m.pi, m.pi )
-				 xpos = t[i][1] + (t[i][3] - Rfig*inout)*m.cos(randFi)
-				 ypos = t[i][2] + (t[i][3] - Rfig*inout)*m.sin(randFi)
-			until farEnough( t, t[i][4], {xpos, ypos}, newBonus )
-			table.insert(t[i][5], { xpos, ypos })
-		end
-	end
-	return t
-end
-
-function farEnough( t, pozs, point, Kbonus )
-	for _,krog in ipairs(pozs) do
-		if diffFig( t, krog, point[1], point[2] ) < (t[krog][3])*Kbonus then
-			return false
-		end
-	end
-	return true
-end
-
--- razdalja med točkama
-function diff(x1, y1, x2, y2)
-	return m.sqrt( (x1 - x2)^2 + (y1 - y2)^2 )
-end
-
--- razdalja med dvema krogoma (poz1 in poz2, ki ju najdemo v t)
-function difft( t, poz1, poz2 )
-	return m.sqrt( (t[poz1][1] - t[poz2][1])^2 + (t[poz1][2] - t[poz2][2])^2 )
-end
-
--- razdalja med krogom poz, ki je v 't' in splošno x,y pozicijo (namenjeno figurici)
-function diffFig( t, poz, xpos, ypos )
-	return m.sqrt( (t[poz][1] - xpos)^2 + (t[poz][2] - ypos)^2 )
-end
-
--- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin
--- dveh krogov, ki ju najdemo v 't'
-function anglet( t, poz1, poz2 )
-	local y1 = t[poz1][2]
-	local x1 = t[poz1][1]
-	local y2 = t[poz2][2]
-	local x2 = t[poz2][1]
-	return m.atan2(  y2 - y1 , x2 - x1  )
-end
-
--- generira en krog in ga doda v 't'
-function genone( t )
-	local L = #t
-	local preFi = anglet( t, L-1 , L)
-	local randFi = m.random( -dfid*100, dfid*100 )/100
-	local newFi = preFi + randFi
-	local randR = m.random( rmin, rmax )
-	local newX = t[L][1] + ( randR + t[L][3] )*m.cos(newFi)
-	local newY = t[L][2] + ( randR + t[L][3] )*m.sin(newFi)
-	local newCircle = { newX, newY, randR, {L} }
-
-	table.insert(t[L][4], L+1)
-	table.insert(t, newCircle)
-
-	return t
-end
-
-function camera_transition( t, last, poz, steps  )
-	local width = love.graphics.getWidth()
-	local height = love.graphics.getHeight()
-	local ratio = trans/steps
-	if trans <= steps then
-		-- najprej odmaknemo pogled od izhodišča do trenutnega kroga,
-		-- nato pa vsakič se pomaknemo za večji odmik proti naslednjemu
-		love.graphics.translate(-t[last][1] + width/2, -t[last][2] + height/2)
-		love.graphics.translate((-t[poz][1] + t[last][1])*ratio, (-t[poz][2] + t[last][2])*ratio)
-		trans = trans + 1
-	else
-		--ponastavimo spremenljivke in upoštevamo, da se ob koncu "iteracije"
-		--izvede zadnja iteracija, kjer se mora zoper kamera premaknit na
-		--pravo mesto in zato moramo še tu postavit primerno tranzlacijo.
-		trans = 0
-		pozChange = false
-		love.graphics.translate( -t[poz][1] + width/2, -t[poz][2] + height/2)
-	end
-end
 
 function love.load()
 	m.randomseed( os.time() )
@@ -240,7 +104,7 @@ function love.update( dt )
 	end
 	if konec == false then
 		if #krogi[poz][5] > 0 then
-			if diff( x, y, krogi[poz][5][1][1], krogi[poz][5][1][2] ) < 2*Rfig then
+			if diff( x, y, krogi[poz][5][1][1], krogi[poz][5][1][2] ) < Rfig+Rnpc then
 				konec = true
 				love.audio.play(nalet)
 			end
@@ -283,7 +147,7 @@ function love.draw()
 		love.graphics.circle( "line", krogi[i][1], krogi[i][2], krogi[i][3], 100 )
 		if #krogi[i][5] > 0 then
 			love.graphics.setColor( 0, 0, 255)
-			love.graphics.circle( "fill", krogi[i][5][1][1], krogi[i][5][1][2], Rfig, 100 )
+			love.graphics.circle( "fill", krogi[i][5][1][1], krogi[i][5][1][2], Rnpc, 100 )
 		end
 	end
 
