@@ -57,6 +57,7 @@ end
 
 -- generira enemy-je
 function generate_npcs( t, Pnpc, minR )
+	local newBonus = 1.5
 	table.insert(t[1], {})
 	for i=2,numSeg do
 		table.insert(t[i], {})
@@ -68,25 +69,27 @@ function generate_npcs( t, Pnpc, minR )
 			else
 				inout = 1
 			end
+			local randFi
+			local xpos
+			local ypos
 			repeat
-				local randFi = m.random( -m.pi, m.pi )
-				local xpos = t[i][1] + (krogi[i][3] - Rfig*inout)*m.cos(randFi)
-				local ypos = t[i][2] + (krogi[i][3] - Rfig*inout)*m.sin(randFi)
-				local newBonus = 1.5
-			until tooCloseCirc( t, t[i][4], {xpos, ypos}, newBonus )
+				 randFi = m.random( -m.pi, m.pi )
+				 xpos = t[i][1] + (t[i][3] - Rfig*inout)*m.cos(randFi)
+				 ypos = t[i][2] + (t[i][3] - Rfig*inout)*m.sin(randFi)
+			until farEnough( t, t[i][4], {xpos, ypos}, newBonus )
 			table.insert(t[i][5], { xpos, ypos })
 		end
 	end
 	return t
 end
 
-function tooCloseCirc( t, pozs, point, Kbonus )
+function farEnough( t, pozs, point, Kbonus )
 	for _,krog in ipairs(pozs) do
 		if diffFig( t, krog, point[1], point[2] ) < (t[krog][3])*Kbonus then
-			return true
+			return false
 		end
 	end
-	return false
+	return true
 end
 
 -- razdalja med točkama
