@@ -5,6 +5,7 @@ require "auxilliary"
 require "generators"
 
 function love.load()
+	init()
 	m.randomseed( os.time() )
 
 	font = love.graphics.newFont(20) -- the number denotes the font size
@@ -83,7 +84,7 @@ function love.draw()
 		end
 		love.graphics.print("Press 'r' to retry", 280, 330)
 		love.graphics.print("Press 'n' to start a new track", 280, 360)
-		love.graphics.print("or 'q' to quit", 300, 380)
+		love.graphics.print("Press 'q' to quit", 280, 390)
 		love.graphics.scale( 1/(trans + 1), 1/(trans + 1) )
 		love.graphics.translate( -(krg[game.poz].x - krg[1].x)/2 + love.graphics.getWidth()/2*(trans+1),
 			-(krg[game.poz].y - krg[1].y)/2 + love.graphics.getHeight()/2*(trans+1))
@@ -128,7 +129,6 @@ function love.keypressed( key, scancode, isrepeat )
 			game.inside = -game.inside
 		end
 	elseif  scancode == 'n' then
-		dofile("init.lua")
 		love.load()
 	elseif  scancode == 'r' then
 		game.smer = 1
