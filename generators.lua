@@ -33,7 +33,7 @@ function generate_npcs( t, minR )
 	for i=2,t.numKrg do
 		if m.random() < t.Pnpc and
 				t[i].r < minR then
-			local inout = m.random(-1, 1)
+			local inout = m.random(-1, 2)
 			if inout <= 0 then
 				inout = -1
 			else
@@ -53,6 +53,38 @@ function generate_npcs( t, minR )
 	return t
 end
 
+-- generira točke
+function generate_points(t, minR)
+	local pBonus = 20
+	for i=2,t.numKrg do
+		if m.random() < t.Ppnt and
+				t[i].r < minR then
+			local inout = m.random(-1, 2)
+			if inout <= 0 then
+				inout = -1
+			else
+				inout = 1
+			end
+			local numOfPoints = m.random(1,4)
+			local randFi
+			local xpos
+			local ypos
+			for j=1,numOfPoints do
+				repeat
+					randFi = m.random()*m.pi
+					if m.random() < 0.5 then
+						randFi = -randFi
+					end
+					xpos = t[i].x + (t[i].r - t.Rpnt*inout)*m.cos(randFi)
+					ypos = t[i].y + (t[i].r - t.Rpnt*inout)*m.sin(randFi)
+				until farEnough( t, t[i].ngs, {xpos, ypos}, pBonus )
+				table.insert(t[i].pts, { x = xpos, y = ypos })
+			end
+		end
+	end
+	return t
+end
+
 -- generira en krog in ga doda v 't'
 function genone( t )
 	local L = #t
@@ -62,7 +94,7 @@ function genone( t )
 	local randR = m.random( krg.rmin, krg.rmax )
 	local newX = t[L].x + ( randR + t[L].r )*m.cos(newFi)
 	local newY = t[L].y + ( randR + t[L].r )*m.sin(newFi)
-	local newCircle = { x = newX, y = newY, r = randR, ngs = {L}, npcs = {} }
+	local newCircle = { x = newX, y = newY, r = randR, ngs = {L}, npcs = {}, pts = {} }
 
 	table.insert(t[L].ngs, L+1)
 	table.insert(t, newCircle)

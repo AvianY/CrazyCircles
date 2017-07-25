@@ -1,5 +1,4 @@
 function init()
-
 	trans = 0
 
 	game = { 
@@ -20,6 +19,8 @@ function init()
 		numKrg = 20,
 		Pnpc = 0.75,
 		Rnpc = 7,
+		Ppnt = 0.6,
+		Rpnt = 5,
 		Rfig = 10,
 		Kbonus = 1.3
 	}
