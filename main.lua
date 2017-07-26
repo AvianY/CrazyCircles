@@ -71,6 +71,7 @@ function love.update( dt )
 					if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig+krg.Rpnt then
 						table.remove(krg[game.poz].pts, nj)
 						love.audio.play(preskok)
+						game.score = game.score + 10
 					end
 				end
 			end
@@ -82,6 +83,7 @@ end
 function love.draw()
 	if game.konec == false then
 		love.graphics.print( game.poz )
+		love.graphics.print( "Score: "..game.score, 0, 20 )
 		--naredimo prehodno animacijo za takrat, ko spremenimo krog
 		if game.pozChange then
 			camera_transition( krg, game.last, game.poz, 20 )

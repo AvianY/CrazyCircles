@@ -9,7 +9,8 @@ function init()
 		fi = 0,
 		inside = 1,
 		smer = 1,
-		random = true
+		random = true,
+		score = 0
 	}
 
 	krg = {
