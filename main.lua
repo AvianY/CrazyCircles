@@ -67,9 +67,11 @@ function love.update( dt )
 	if game.konec == false then
 		if #krg[game.poz].pts > 0 then
 			for nj=1,#krg[game.poz].pts do
-				if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig+krg.Rpnt then
-					table.remove(krg[game.poz].pts[nj]) --doesn't work
-					love.audio.play(preskok)
+				if krg[game.poz].pts[nj] ~= nil then
+					if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig+krg.Rpnt then
+						krg[game.poz].pts[nj] = nil
+						love.audio.play(preskok)
+					end
 				end
 			end
 		end
@@ -116,7 +118,9 @@ function love.draw()
 		if #krg[i].pts > 0 then
 			love.graphics.setColor( 0, 255, 0)
 			for j=1,#krg[i].pts do
-				love.graphics.circle( "fill", krg[i].pts[j].x, krg[i].pts[j].y, krg.Rpnt, 100 )
+				if krg[i].pts[j] ~= nil then
+					love.graphics.circle( "fill", krg[i].pts[j].x, krg[i].pts[j].y, krg.Rpnt, 100 )
+				end
 			end
 		end
 	end
