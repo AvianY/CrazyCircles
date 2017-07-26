@@ -31,5 +31,6 @@ function init()
 	nalet = love.audio.newSource("audio/sfx_exp_shortest_hard5.wav", "static")
 	zmaga = love.audio.newSource("audio/sfx_sounds_button7.wav", "static")
 	zacetek = love.audio.newSource("audio/sfx_sounds_button14.wav", "static")
+	tocke = love.audio.newSource("audio/sfx_coin_double1.wav", "static")
 	
 end

@@ -11,9 +11,11 @@ diffFig	auxilliary.lua	/^function diffFig( t, poz, xpos, ypos )$/;"	f
 difft	auxilliary.lua	/^function difft( t, poz1, poz2 )$/;"	f
 farEnough	auxilliary.lua	/^function farEnough( t, pozs, point, Kbonus )$/;"	f
 generate_circles	generators.lua	/^function generate_circles( t, numseg, starting, retries, exDist )$/;"	f
-generate_npcs	generators.lua	/^function generate_npcs( t, Pnpc, minR )$/;"	f
+generate_npcs	generators.lua	/^function generate_npcs( t, minR )$/;"	f
+generate_points	generators.lua	/^function generate_points(t, minR)$/;"	f
 genone	generators.lua	/^function genone( t )$/;"	f
 has_value 	auxilliary.lua	/^function has_value ( table, values)$/;"	f
+init	init.lua	/^function init()$/;"	f
 love.draw	main.lua	/^function love.draw()$/;"	f
 love.keypressed	main.lua	/^function love.keypressed( key, scancode, isrepeat )$/;"	f
 love.load	main.lua	/^function love.load()$/;"	f

@@ -68,9 +68,9 @@ function love.update( dt )
 		if #krg[game.poz].pts > 0 then
 			for nj=1,#krg[game.poz].pts do
 				if krg[game.poz].pts[nj] ~= nil then
-					if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig+krg.Rpnt then
+					if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig + krg.Rpnt then
 						table.remove(krg[game.poz].pts, nj)
-						love.audio.play(preskok)
+						love.audio.play(tocke)
 						game.score = game.score + 10
 					end
 				end
