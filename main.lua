@@ -69,7 +69,7 @@ function love.update( dt )
 			for nj=1,#krg[game.poz].pts do
 				if krg[game.poz].pts[nj] ~= nil then
 					if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig+krg.Rpnt then
-						krg[game.poz].pts[nj] = nil
+						table.remove(krg[game.poz].pts, nj)
 						love.audio.play(preskok)
 					end
 				end
