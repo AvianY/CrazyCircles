@@ -1,7 +1,17 @@
 -- Generira kroge za trenutno igro
 function generate_circles( t, numseg, starting, retries, exDist )
 	for i=starting,numseg do
-		t = genone( t )
+		if m.random() < 0.9 then
+			g = 1
+		else
+			g = 4
+		end
+		if g == 1 then
+			t = genone( t )
+		else
+			--TODO: ce je genfour uspesen, moramo nekako povecati i za 4...
+			t = genfour( t )
+		end
 		-- Check for circle colisions!!
 		-- If they colide, remove the last table entry
 		for j=1,i-1 do
@@ -17,8 +27,14 @@ function generate_circles( t, numseg, starting, retries, exDist )
 						generate_circles( t, numseg, #t+1, retries, 20 )
 						break
 					end
-					table.remove(t)
-					retries = retries + 1
+					if g == 1 then
+						table.remove(t)
+					else
+						for _=1,4 do
+							table.remove(t)
+						end
+						retries = retries + 1
+					end
 					generate_circles( t, numseg, #t+1, retries, 20 )
 					break
 				end
@@ -98,6 +114,52 @@ function genone( t )
 
 	table.insert(t[L].ngs, L+1)
 	table.insert(t, newCircle)
+
+	return t
+end
+
+-- generira en krog in ga doda v 't'
+function genfour( t )
+	local L = #t
+	local preFi = anglet( t, L-1 , L)
+	local preR = t[L].r
+	-- Iz nakljucnega ter prejsnjega R-ja izracunamo fi
+	local randR = m.random( krg.rmin, krg.rmax )
+	local clusFi = m.asin( randR / ( randR + preR) )
+
+	local clus1X = t[L].x + ( randR + preR )*m.cos(preFi + clusFi)
+	local clus1Y = t[L].y + ( randR + preR )*m.sin(preFi + clusFi)
+
+	local clus2X = t[L].x + ( randR + preR )*m.cos(preFi - clusFi)
+	local clus2Y = t[L].y + ( randR + preR )*m.sin(preFi - clusFi)
+
+	-- nakljucen R za zakljucitveni krog za gruco (cluster)
+	local randR1 = m.random( krg.rmin, krg.rmax )
+
+	local height1 = m.sqrt( (preR + randR)^2 - (randR)^2 )
+	local height2 = m.sqrt( (randR1 + randR)^2 - (randR)^2 )
+
+	local zakkrg1X = t[L].x + ( height1 + height2 )*m.cos(preFi)
+	local zakkrg1Y = t[L].y + ( height1 + height2 )*m.sin(preFi)
+
+	-- nakljucen R za zakljucitveni krog celotne stvari (cluster)
+	local randR2 = m.random( krg.rmin, krg.rmax )
+	local randFi2 = m.random( -krg.dfid*100, krg.dfid*100 )/100
+	local zakkrg2X = zakkrg1X + ( randR1 + randR2 )*m.cos(preFi + randFi2)
+	local zakkrg2Y = zakkrg1Y + ( randR1 + randR2 )*m.sin(preFi + randFi2)
+
+	local newCircle1 = { x = clus1X, y = clus1Y, r = randR, ngs = {L, L+2, L+3}, npcs = {}, pts = {} }
+	local newCircle2 = { x = clus2X, y = clus2Y, r = randR, ngs = {L, L+1, L+3}, npcs = {}, pts = {} }
+	local newCircle3 = { x = zakkrg1X, y = zakkrg1Y, r = randR1, ngs = {L+1, L+2 , L+4}, npcs = {}, pts = {} }
+	local newCircle4 = { x = zakkrg2X, y = zakkrg2Y, r = randR2, ngs = { L+3 }, npcs = {}, pts = {} }
+
+	table.insert(t[L].ngs, L+1)
+	table.insert(t[L].ngs, L+2)
+
+	table.insert(t, newCircle1)
+	table.insert(t, newCircle2)
+	table.insert(t, newCircle3)
+	table.insert(t, newCircle4)
 
 	return t
 end
