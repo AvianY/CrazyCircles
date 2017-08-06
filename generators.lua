@@ -9,7 +9,6 @@ function generate_circles( t, numseg, starting, retries, exDist )
 		if g == 1 then
 			t = genone( t )
 		else
-			--TODO: ce je genfour uspesen, moramo nekako povecati i za 4...
 			t = genfour( t )
 		end
 		-- Check for circle colisions!!
@@ -39,6 +38,10 @@ function generate_circles( t, numseg, starting, retries, exDist )
 					break
 				end
 			end
+		end
+		if g == 4 then
+			generate_circles( t, numseg, #t+1, retries, 20 )
+			break
 		end
 	end
 end
