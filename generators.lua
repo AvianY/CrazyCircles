@@ -118,7 +118,7 @@ function genone( t )
 	return t
 end
 
--- generira en krog in ga doda v 't'
+-- generira cluster štirih krogov
 function genfour( t )
 	local L = #t
 	local preFi = anglet( t, L-1 , L)
@@ -126,7 +126,12 @@ function genfour( t )
 	-- Iz nakljucnega ter prejsnjega R-ja izracunamo fi
 	local randR = m.random( krg.rmin, krg.rmax )
 	local clusFi = m.asin( randR / ( randR + preR) )
-
+	local randn = m.random(1,2)
+	if randn == 2 then
+		-- kroga v clusterju se ne stikata
+		local randkot = m.random(10, 30) / 100
+		clusFi = clusFi + randkot
+	end
 	local clus1X = t[L].x + ( randR + preR )*m.cos(preFi + clusFi)
 	local clus1Y = t[L].y + ( randR + preR )*m.sin(preFi + clusFi)
 
@@ -136,12 +141,19 @@ function genfour( t )
 	-- nakljucen R za zakljucitveni krog za gruco (cluster)
 	local randR1 = m.random( krg.rmin, krg.rmax )
 
-	local height1 = m.sqrt( (preR + randR)^2 - (randR)^2 )
-	local height2 = m.sqrt( (randR1 + randR)^2 - (randR)^2 )
-
+	local height1, height2
+	if randn == 1 then
+		height1 = m.sqrt( (preR + randR)^2 - (randR)^2 )
+		height2 = m.sqrt( (randR1 + randR)^2 - (randR)^2 )
+	else
+		local extRandR = m.sin(clusFi)*(randR + preR)
+		height1 = m.sqrt( (preR + randR)^2 - (extRandR)^2 )
+		height2 = m.sqrt( (randR1 + randR)^2 - (extRandR)^2 )
+	end
+	
 	local zakkrg1X = t[L].x + ( height1 + height2 )*m.cos(preFi)
 	local zakkrg1Y = t[L].y + ( height1 + height2 )*m.sin(preFi)
-
+	
 	-- nakljucen R za zakljucitveni krog celotne stvari (cluster)
 	local randR2 = m.random( krg.rmin, krg.rmax )
 	local randFi2 = m.random( -krg.dfid*100, krg.dfid*100 )/100
