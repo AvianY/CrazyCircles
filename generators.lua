@@ -50,10 +50,25 @@ function generate_circles( t, numseg, starting, retries, exDist )
 	end
 end
 
+-- Drugi poskus generacije krogov.
+-- Kriteriji:
+--	-Brez rekurzije
+--	-Brez while loopa
+--	-For loop zazeljeno predstavlja stevilo krogov
+--	-Brez preverjanja kolizij med generiranjem.
+function generate_circles1( t, numseg, exDist )
+	for i=1,numseg do
+		t = genone_col( t, exDist )
+		-- if i ~= (#t - 2) then
+		-- 	print(i, #t-2)
+		-- end
+	end
+end
+
 -- generira enemy-je
 function generate_npcs( t, minR )
 	local newBonus = 30
-	for i=2,t.numKrg do
+	for i=2,#t do
 		if m.random() < t.Pnpc and
 				t[i].r < minR then
 			local inout = m.random(-1, 2)
@@ -79,7 +94,7 @@ end
 -- generira točke
 function generate_points(t, minR)
 	local pBonus = 20
-	for i=2,t.numKrg do
+	for i=2,#t do
 		if m.random() < t.Ppnt and
 				t[i].r < minR then
 			local inout = m.random(-1, 2)
@@ -110,16 +125,37 @@ end
 
 -- generira en krog in ga doda v 't'
 function genone( t )
-	local L = #t
-	local preFi = anglet( t, L-1 , L)
+	local preFi = anglet( t, #t-1 , #t)
 	local randFi = m.random( -krg.dfid*100, krg.dfid*100 )/100
 	local newFi = preFi + randFi
 	local randR = m.random( krg.rmin, krg.rmax )
-	local newX = t[L].x + ( randR + t[L].r )*m.cos(newFi)
-	local newY = t[L].y + ( randR + t[L].r )*m.sin(newFi)
-	local newCircle = { x = newX, y = newY, r = randR, ngs = {L}, npcs = {}, pts = {} }
+	local newX = t[#t].x + ( randR + t[#t].r )*m.cos(newFi)
+	local newY = t[#t].y + ( randR + t[#t].r )*m.sin(newFi)
+	local newCircle = { x = newX, y = newY, r = randR, ngs = {#t}, npcs = {}, pts = {} }
 
-	table.insert(t[L].ngs, L+1)
+	table.insert(t[#t].ngs, #t+1)
+	table.insert(t, newCircle)
+
+	return t
+end
+
+-- generira en krog in ga doda v 't'. Če se križa z drugimi krogi, bo
+-- poskusil še enkrat. Krog bo generiral glede na povprečje ostalih
+-- krogov.
+function genone_col( t, exDist)
+	local newCircle = {}
+	repeat
+		print( "In the loop:", #t)
+		local avgFi = avgAngle( t )
+		local randFi = m.random( -krg.dfid*100, krg.dfid*100 )/100
+		local newFi = avgFi + randFi
+		local randR = m.random( krg.rmin, krg.rmax )
+		local newX = t[#t].x + ( randR + t[#t].r )*m.cos(newFi)
+		local newY = t[#t].y + ( randR + t[#t].r )*m.sin(newFi)
+		newCircle = { x = newX, y = newY, r = randR, ngs = {#t}, npcs = {}, pts = {} }
+	until checkCollisions( t , newX, newY, randR, exDist  )
+
+	table.insert(t[#t].ngs, #t+1)
 	table.insert(t, newCircle)
 
 	return t
@@ -127,9 +163,8 @@ end
 
 -- generira cluster štirih krogov
 function genfour( t )
-	local L = #t
-	local preFi = anglet( t, L-1 , L)
-	local preR = t[L].r
+	local preFi = anglet( t, #t-1 , #t)
+	local preR = t[#t].r
 	-- Iz nakljucnega ter prejsnjega R-ja izracunamo fi
 	local randR = m.random( krg.rmin, krg.rmax )
 	local clusFi = m.asin( randR / ( randR + preR) )
@@ -139,11 +174,11 @@ function genfour( t )
 		local randkot = m.random(10, 30) / 100
 		clusFi = clusFi + randkot
 	end
-	local clus1X = t[L].x + ( randR + preR )*m.cos(preFi + clusFi)
-	local clus1Y = t[L].y + ( randR + preR )*m.sin(preFi + clusFi)
+	local clus1X = t[#t].x + ( randR + preR )*m.cos(preFi + clusFi)
+	local clus1Y = t[#t].y + ( randR + preR )*m.sin(preFi + clusFi)
 
-	local clus2X = t[L].x + ( randR + preR )*m.cos(preFi - clusFi)
-	local clus2Y = t[L].y + ( randR + preR )*m.sin(preFi - clusFi)
+	local clus2X = t[#t].x + ( randR + preR )*m.cos(preFi - clusFi)
+	local clus2Y = t[#t].y + ( randR + preR )*m.sin(preFi - clusFi)
 
 	-- nakljucen R za zakljucitveni krog za gruco (cluster)
 	local randR1 = m.random( krg.rmin, krg.rmax )
@@ -158,8 +193,8 @@ function genfour( t )
 		height2 = m.sqrt( (randR1 + randR)^2 - (extRandR)^2 )
 	end
 	
-	local zakkrg1X = t[L].x + ( height1 + height2 )*m.cos(preFi)
-	local zakkrg1Y = t[L].y + ( height1 + height2 )*m.sin(preFi)
+	local zakkrg1X = t[#t].x + ( height1 + height2 )*m.cos(preFi)
+	local zakkrg1Y = t[#t].y + ( height1 + height2 )*m.sin(preFi)
 	
 	-- nakljucen R za zakljucitveni krog celotne stvari (cluster)
 	local randR2 = m.random( krg.rmin, krg.rmax )
@@ -167,13 +202,13 @@ function genfour( t )
 	local zakkrg2X = zakkrg1X + ( randR1 + randR2 )*m.cos(preFi + randFi2)
 	local zakkrg2Y = zakkrg1Y + ( randR1 + randR2 )*m.sin(preFi + randFi2)
 
-	local newCircle1 = { x = clus1X, y = clus1Y, r = randR, ngs = {L, L+2, L+3}, npcs = {}, pts = {} }
-	local newCircle2 = { x = clus2X, y = clus2Y, r = randR, ngs = {L, L+1, L+3}, npcs = {}, pts = {} }
-	local newCircle3 = { x = zakkrg1X, y = zakkrg1Y, r = randR1, ngs = {L+1, L+2 , L+4}, npcs = {}, pts = {} }
-	local newCircle4 = { x = zakkrg2X, y = zakkrg2Y, r = randR2, ngs = { L+3 }, npcs = {}, pts = {} }
+	local newCircle1 = { x = clus1X, y = clus1Y, r = randR, ngs = {#t, #t+2, #t+3}, npcs = {}, pts = {} }
+	local newCircle2 = { x = clus2X, y = clus2Y, r = randR, ngs = {#t, #t+1, #t+3}, npcs = {}, pts = {} }
+	local newCircle3 = { x = zakkrg1X, y = zakkrg1Y, r = randR1, ngs = {#t+1, #t+2 , #t+4}, npcs = {}, pts = {} }
+	local newCircle4 = { x = zakkrg2X, y = zakkrg2Y, r = randR2, ngs = { #t+3 }, npcs = {}, pts = {} }
 
-	table.insert(t[L].ngs, L+1)
-	table.insert(t[L].ngs, L+2)
+	table.insert(t[#t].ngs, #t+1)
+	table.insert(t[#t].ngs, #t+2)
 
 	table.insert(t, newCircle1)
 	table.insert(t, newCircle2)
@@ -183,3 +218,24 @@ function genfour( t )
 	return t
 end
 
+-- dobi povprečno točko nahajanja krogov
+function avgKrg( t )
+	sumx = 0
+	sumy = 0
+	for k,v in ipairs(t) do
+		sumx = sumx + v.x
+		sumy = sumy + v.y
+	end
+	return { sumx/#t, sumy/#t }
+end
+
+
+-- Preveri kolizijo zadnjega kroga z ostalimi krogi
+function checkCollisions( t, xpos, ypos, r, exDist )
+	for i=1,#t-1 do
+		if diffFig(t, i, xpos, ypos) < t[i].r + r + exDist then
+			return false
+		end
+	end
+	return true
+end

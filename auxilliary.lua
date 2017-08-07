@@ -40,6 +40,15 @@ end
 
 -- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin
 -- dveh krogov, ki ju najdemo v 't'
+function avgAngle( t )
+	avgPoint = avgKrg( t )
+	xlast = t[#t].x
+	ylast = t[#t].y
+	return m.atan2(  ylast - avgPoint[2] , xlast - avgPoint[1]  )
+end
+
+-- pridobi kot med vodoravnico in daljico, ki gre skozi presečišči sredin
+-- dveh krogov, ki ju najdemo v 't'
 function anglet( t, poz1, poz2 )
 	local y1 = t[poz1].y
 	local x1 = t[poz1].x

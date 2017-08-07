@@ -4,6 +4,8 @@ require "init"
 require "auxilliary"
 require "generators"
 
+numKrog = 30
+
 function love.load()
 	init()
 	m.randomseed( os.time() )
@@ -20,7 +22,7 @@ function love.load()
 	sekY = krg[1].y + (randR + krg[1].r)*m.sin(randFi)
 	table.insert( krg, { x = sekX, y = sekY, r = randR, ngs = {1}, npcs = {}, pts = {} })
 
-	generate_circles( krg, krg.numKrg, 3, 0, 20)
+	generate_circles1( krg, numKrog, 20)
 
 	krg = generate_npcs( krg, 70)
 	generate_points( krg, 80)
@@ -42,7 +44,7 @@ function love.update( dt )
 	x = krg[game.poz].x + (krg[game.poz].r - krg.Rfig*game.inside)*m.cos(game.fi)
 	y = krg[game.poz].y + (krg[game.poz].r - krg.Rfig*game.inside)*m.sin(game.fi)
 
-	if game.poz == krg.numKrg and game.konec == false then
+	if game.poz == #krg and game.konec == false then
 		game.konec = true
 		love.audio.play(zmaga)
 
@@ -70,6 +72,7 @@ function love.update( dt )
 				if krg[game.poz].pts[nj] ~= nil then
 					if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig + krg.Rpnt then
 						table.remove(krg[game.poz].pts, nj)
+						love.audio.stop(tocke)
 						love.audio.play(tocke)
 						game.score = game.score + 10
 					end
@@ -92,7 +95,7 @@ function love.draw()
 				-krg[game.poz].y + love.graphics.getHeight()/2)
 		end
 	else
-		if game.poz < krg.numKrg then
+		if game.poz < #krg then
 			love.graphics.print("GAME OVER", 300, 300)
 		else
 			love.graphics.setColor( 0, 255, 0)
@@ -110,7 +113,7 @@ function love.draw()
 	end
 
 	--Nariše kroge in npcje
-	for i=1,krg.numKrg do
+	for i=1,#krg do
 		love.graphics.setColor( 255, 255, 255)
 		love.graphics.circle( "line", krg[i].x, krg[i].y, krg[i].r, 100 )
 		if #krg[i].npcs > 0 then
@@ -135,6 +138,7 @@ function love.keypressed( key, scancode, isrepeat )
 	if scancode == 'q' then
 		love.event.quit()
 	elseif scancode == "space" and game.konec == false then
+		love.audio.stop(preskok)
 		love.audio.play(preskok)
 		 -- Check if close enough to neigh upon jumping
 		local lock = false

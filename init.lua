@@ -17,7 +17,6 @@ function init()
 		rmin = 60,
 		rmax = 100,
 		dfid = 0.9*m.pi/2,
-		numKrg = 40,
 		Pnpc = 0.75,
 		Rnpc = 7,
 		Ppnt = 0.6,
