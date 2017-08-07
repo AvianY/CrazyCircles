@@ -1,6 +1,7 @@
 -- Generira kroge za trenutno igro
 function generate_circles( t, numseg, starting, retries, exDist )
-	for i=starting,numseg do
+	local i = starting
+	while i <= numseg do
 		if m.random() < 0.9 then
 			g = 1
 		else
@@ -9,7 +10,12 @@ function generate_circles( t, numseg, starting, retries, exDist )
 		if g == 1 then
 			t = genone( t )
 		else
-			t = genfour( t )
+			if numseg - i > 4 then
+				t = genfour( t )
+				i = i + 3
+			else
+				t = genone( t )
+			end
 		end
 		-- Check for circle colisions!!
 		-- If they colide, remove the last table entry
@@ -23,26 +29,24 @@ function generate_circles( t, numseg, starting, retries, exDist )
 							table.remove(t)
 						end
 						retries = 0
-						generate_circles( t, numseg, #t+1, retries, 20 )
+						i = i - 5
 						break
 					end
 					if g == 1 then
 						table.remove(t)
+						i = i - 1
 					else
 						for _=1,4 do
 							table.remove(t)
 						end
+						i = i - 4
 						retries = retries + 1
 					end
-					generate_circles( t, numseg, #t+1, retries, 20 )
 					break
 				end
 			end
 		end
-		if g == 4 then
-			generate_circles( t, numseg, #t+1, retries, 20 )
-			break
-		end
+		i = i + 1 
 	end
 end
 
