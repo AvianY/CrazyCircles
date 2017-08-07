@@ -8,16 +8,17 @@ anglet	auxilliary.lua	/^function anglet( t, poz1, poz2 )$/;"	f
 avgAngle	auxilliary.lua	/^function avgAngle( t )$/;"	f
 avgKrg	generators.lua	/^function avgKrg( t )$/;"	f
 camera_transition	auxilliary.lua	/^function camera_transition( t, last, poz, steps  )$/;"	f
-checkCollisions	generators.lua	/^function checkCollisions( t, exDist )$/;"	f
+checkCollisions	generators.lua	/^function checkCollisions( t, points, exDist )$/;"	f
 diff	auxilliary.lua	/^function diff(x1, y1, x2, y2)$/;"	f
 diffFig	auxilliary.lua	/^function diffFig( t, poz, xpos, ypos )$/;"	f
 difft	auxilliary.lua	/^function difft( t, poz1, poz2 )$/;"	f
 farEnough	auxilliary.lua	/^function farEnough( t, pozs, point, Kbonus )$/;"	f
 generate_circles	generators.lua	/^function generate_circles( t, numseg, starting, retries, exDist )$/;"	f
-generate_circles1	generators.lua	/^function generate_circles1( t, numseg, exDist )$/;"	f
+generate_circles1	generators.lua	/^function generate_circles1( t, numKrog, exDist )$/;"	f
 generate_npcs	generators.lua	/^function generate_npcs( t, minR )$/;"	f
 generate_points	generators.lua	/^function generate_points(t, minR)$/;"	f
 genfour	generators.lua	/^function genfour( t )$/;"	f
+genfour_col	generators.lua	/^function genfour_col( t, exDist)$/;"	f
 genone	generators.lua	/^function genone( t )$/;"	f
 genone_col	generators.lua	/^function genone_col( t, exDist)$/;"	f
 has_value 	auxilliary.lua	/^function has_value ( table, values)$/;"	f
