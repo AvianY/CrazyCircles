@@ -145,7 +145,6 @@ end
 function genone_col( t, exDist)
 	local newCircle = {}
 	repeat
-		print( "In the loop:", #t)
 		local avgFi = avgAngle( t )
 		local randFi = m.random( -krg.dfid*100, krg.dfid*100 )/100
 		local newFi = avgFi + randFi
@@ -153,7 +152,7 @@ function genone_col( t, exDist)
 		local newX = t[#t].x + ( randR + t[#t].r )*m.cos(newFi)
 		local newY = t[#t].y + ( randR + t[#t].r )*m.sin(newFi)
 		newCircle = { x = newX, y = newY, r = randR, ngs = {#t}, npcs = {}, pts = {} }
-	until checkCollisions( t , newX, newY, randR, exDist  )
+	until checkCollisions( t , {{ x = newCircle.x, y = newCircle.y, r = newCircle.r}}, exDist  )
 
 	table.insert(t[#t].ngs, #t+1)
 	table.insert(t, newCircle)
@@ -230,11 +229,13 @@ function avgKrg( t )
 end
 
 
--- Preveri kolizijo zadnjega kroga z ostalimi krogi
-function checkCollisions( t, xpos, ypos, r, exDist )
+-- Preveri kolizijo zadnjih #points krogov z ostalimi krogi
+function checkCollisions( t, points, exDist )
 	for i=1,#t-1 do
-		if diffFig(t, i, xpos, ypos) < t[i].r + r + exDist then
-			return false
+		for j=1,#points do
+			if diffFig(t, i, points[j].x, points[j].y) < t[i].r + points[j].r + exDist then
+				return false
+			end
 		end
 	end
 	return true
