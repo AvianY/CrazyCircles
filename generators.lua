@@ -159,7 +159,7 @@ function genfour( t )
 	
 	-- nakljucen R za zakljucitveni krog celotne stvari (cluster)
 	local randR2 = m.random( krg.rmin, krg.rmax )
-	local randFi2 = m.random( -krg.dfid*100, krg.dfid*100 )/100
+	local randFi2 = m.random( -krg.dfid/2*100, krg.dfid/2*100 )/100
 	local zakkrg2X = zakkrg1X + ( randR1 + randR2 )*m.cos(preFi + randFi2)
 	local zakkrg2Y = zakkrg1Y + ( randR1 + randR2 )*m.sin(preFi + randFi2)
 
