@@ -24,8 +24,8 @@ function love.load()
 
 	generate_circles1( krg, numKrog, 20)
 
+	krg = generate_points( krg, 80)
 	krg = generate_npcs( krg, 70)
-	generate_points( krg, 80)
 
 	x = krg[game.poz].x + (krg[game.poz].r - krg.Rfig*game.inside)*m.cos(game.fi)
 	y = krg[game.poz].y + (krg[game.poz].r - krg.Rfig*game.inside)*m.sin(game.fi)

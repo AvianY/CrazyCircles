@@ -92,6 +92,7 @@ function generate_npcs( t, minR )
 				 xpos = t[i].x + (t[i].r - t.Rnpc*inout)*m.cos(randFi)
 				 ypos = t[i].y + (t[i].r - t.Rnpc*inout)*m.sin(randFi)
 			until farEnough( t, t[i].ngs, {xpos, ypos}, newBonus )
+					and farEnough_p2p( t[i].pts, {xpos, ypos}, newBonus )
 			table.insert(t[i].npcs, { x = xpos, y = ypos })
 		end
 	end
@@ -100,12 +101,12 @@ end
 
 -- generira točke
 function generate_points(t, minR)
-	local pBonus = 20
+	local pBonus = 50
 	for i=2,#t do
 		if m.random() < t.Ppnt and
-				t[i].r < minR then
-			local inout = m.random(-1, 2)
-			if inout <= 0 then
+				t[i].r > minR then
+			local inout = m.random()
+			if inout <= 0.5 then
 				inout = -1
 			else
 				inout = 1
@@ -114,16 +115,25 @@ function generate_points(t, minR)
 			local randFi
 			local xpos
 			local ypos
-			for j=1,numOfPoints do
-				repeat
-					randFi = m.random()*m.pi
-					if m.random() < 0.5 then
-						randFi = -randFi
-					end
-					xpos = t[i].x + (t[i].r - t.Rpnt*inout)*m.cos(randFi)
-					ypos = t[i].y + (t[i].r - t.Rpnt*inout)*m.sin(randFi)
-				until farEnough( t, t[i].ngs, {xpos, ypos}, pBonus )
+
+			repeat
+				randFi = m.random()*m.pi
+				if m.random() < 0.5 then
+					randFi = -randFi
+				end
+				xpos = t[i].x + (t[i].r - t.Rpnt*inout)*m.cos(randFi)
+				ypos = t[i].y + (t[i].r - t.Rpnt*inout)*m.sin(randFi)
 				table.insert(t[i].pts, { x = xpos, y = ypos })
+			until farEnough( t, t[i].ngs, {xpos, ypos}, pBonus )
+
+			deltaFi = m.pi*15/180
+
+			if numOfPoints > 1 then
+				for j=1,(numOfPoints - 1) do
+					xpos = t[i].x + (t[i].r - t.Rpnt*inout)*m.cos(randFi+deltaFi*j)
+					ypos = t[i].y + (t[i].r - t.Rpnt*inout)*m.sin(randFi+deltaFi*j)
+					table.insert(t[i].pts, { x = xpos, y = ypos })
+				end
 			end
 		end
 	end
