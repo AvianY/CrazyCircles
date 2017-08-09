@@ -74,10 +74,11 @@ end
 
 -- generira enemy-je
 function generate_npcs( t, minR )
-	local newBonus = 30
+	local distToKrg = 50
+	local distToPts = 20
 	for i=2,#t do
 		if m.random() < t.Pnpc and
-				t[i].r < minR then
+				t[i].r > minR then
 			local inout = m.random(-1, 2)
 			if inout <= 0 then
 				inout = -1
@@ -87,12 +88,17 @@ function generate_npcs( t, minR )
 			local randFi
 			local xpos
 			local ypos
+			local trials = 0
 			repeat
-				 randFi = m.random( -m.pi, m.pi )
-				 xpos = t[i].x + (t[i].r - t.Rnpc*inout)*m.cos(randFi)
-				 ypos = t[i].y + (t[i].r - t.Rnpc*inout)*m.sin(randFi)
-			until farEnough( t, t[i].ngs, {xpos, ypos}, newBonus )
-					and farEnough_p2p( t[i].pts, {xpos, ypos}, newBonus )
+				randFi = m.random( -m.pi, m.pi )
+				xpos = t[i].x + (t[i].r - t.Rnpc*inout)*m.cos(randFi)
+				ypos = t[i].y + (t[i].r - t.Rnpc*inout)*m.sin(randFi)
+				trials = trials + 1
+				if trials > 10 then
+					return t
+				end
+			until farEnough( t, t[i].ngs, {xpos, ypos}, distToKrg )
+					and farEnough_p2p( t[i].pts, {xpos, ypos}, distToPts )
 			table.insert(t[i].npcs, { x = xpos, y = ypos })
 		end
 	end
@@ -103,36 +109,43 @@ end
 function generate_points(t, minR)
 	local pBonus = 50
 	for i=2,#t do
-		if m.random() < t.Ppnt and
-				t[i].r > minR then
+		-- table.remove( t[i].pts )
+		if m.random() < t.Ppnt then
 			local inout = m.random()
-			if inout <= 0.5 then
-				inout = -1
-			else
+			if inout <= 0.5 or t[i].r < minR then
 				inout = 1
+			else
+				inout = -1
 			end
-			local numOfPoints = m.random(1,4)
+			local numOfPoints = m.random(1,8)
 			local randFi
 			local xpos
 			local ypos
+			local trials = 0
 
+			-- Poisce eno tocko, ki je dovolj oddaljena
 			repeat
-				randFi = m.random()*m.pi
-				if m.random() < 0.5 then
-					randFi = -randFi
-				end
+				randFi = m.random()*2*m.pi
 				xpos = t[i].x + (t[i].r - t.Rpnt*inout)*m.cos(randFi)
 				ypos = t[i].y + (t[i].r - t.Rpnt*inout)*m.sin(randFi)
-				table.insert(t[i].pts, { x = xpos, y = ypos })
-			until farEnough( t, t[i].ngs, {xpos, ypos}, pBonus )
+				trials = trials + 1
+				if trials > 10 then
+					return t
+				end
+			until farEnough( t, t[i].ngs, {xpos, ypos}, pBonus ) or inout == 1
+			table.insert(t[i].pts, { x = xpos, y = ypos })
 
+			-- Kotni razmak med tockami
 			deltaFi = m.pi*15/180
 
+			-- Generiramo se preostale tocke z enakomernim razmakom
 			if numOfPoints > 1 then
 				for j=1,(numOfPoints - 1) do
 					xpos = t[i].x + (t[i].r - t.Rpnt*inout)*m.cos(randFi+deltaFi*j)
 					ypos = t[i].y + (t[i].r - t.Rpnt*inout)*m.sin(randFi+deltaFi*j)
-					table.insert(t[i].pts, { x = xpos, y = ypos })
+					if farEnough( t, t[i].ngs, {xpos, ypos}, pBonus ) or inout == 1 then
+						table.insert(t[i].pts, { x = xpos, y = ypos })
+					end
 				end
 			end
 		end
