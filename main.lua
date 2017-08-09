@@ -143,7 +143,7 @@ function love.keypressed( key, scancode, isrepeat )
 		 -- Check if close enough to neigh upon jumping
 		local lock = false
 		for _,neigh in ipairs(krg[game.poz].ngs) do
-			if diffFig( krg, neigh, x, y ) < (krg[neigh].r)*krg.Kbonus then
+			if diffFig( krg, neigh, x, y ) < krg[neigh].r + krg.Kbonus then -- m.min( krg[neigh].r, krg[game.poz].r) 
 				game.fi = anglet( krg, game.poz, neigh ) + m.pi
 				game.last = game.poz
 				game.poz = neigh
@@ -157,8 +157,10 @@ function love.keypressed( key, scancode, isrepeat )
 			game.inside = -game.inside
 		end
 	elseif  scancode == 'n' then
+		trans = 0
 		love.load()
 	elseif  scancode == 'r' then
+		trans = 0
 		game.smer = 1
 		game.inside = 1
 		game.poz = 1

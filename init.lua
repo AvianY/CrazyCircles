@@ -22,7 +22,7 @@ function init()
 		Ppnt = 0.6,
 		Rpnt = 5,
 		Rfig = 10,
-		Kbonus = 1.3
+		Kbonus = 20
 	}
 
 	--Zvočni efekti

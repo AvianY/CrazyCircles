@@ -117,7 +117,7 @@ function generate_points(t, minR)
 			else
 				inout = -1
 			end
-			local numOfPoints = m.random(1,8)
+			local numOfPoints = m.random(1,5)
 			local randFi
 			local xpos
 			local ypos
@@ -135,8 +135,10 @@ function generate_points(t, minR)
 			until farEnough( t, t[i].ngs, {xpos, ypos}, pBonus ) or inout == 1
 			table.insert(t[i].pts, { x = xpos, y = ypos })
 
-			-- Kotni razmak med tockami
-			deltaFi = m.pi*15/180
+			-- Kotni razmak med tockami (eksperimentalno dolocen)
+			-- delimo z r-jem, da bodo tocke absolutno enako razmaknjene
+			-- na vseh krogih
+			deltaFi = m.pi*7/t[i].r
 
 			-- Generiramo se preostale tocke z enakomernim razmakom
 			if numOfPoints > 1 then
