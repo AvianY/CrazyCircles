@@ -75,7 +75,7 @@ end
 -- generira enemy-je
 function generate_npcs( t, minR )
 	local distToKrg = 50
-	local distToPts = 20
+	local distToPts = 50
 	for i=2,#t do
 		if m.random() < t.Pnpc and
 				t[i].r > minR then

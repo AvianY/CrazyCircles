@@ -25,11 +25,9 @@ end
 
 -- Check if point (xpos, ypos) is far enough from points
 function farEnough_p2p( points, point, Kbonus )
-	if #points > 1 then
-		for k,pts in ipairs(points) do
-			if diff( pts.x, pts.y, point[1], point[2] ) < Kbonus then
-				return false
-			end
+	for _,pts in ipairs(points) do
+		if diff( pts.x, pts.y, point[1], point[2] ) < Kbonus then
+			return false
 		end
 	end
 	return true
