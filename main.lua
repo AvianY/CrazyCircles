@@ -3,10 +3,13 @@ m = require "math"
 require "init"
 require "auxilliary"
 require "generators"
+local o_ten_one = require "o-ten-one"
 
 numKrog = 30
 
 function love.load()
+	splash = o_ten_one()
+	splash.onDone = function() print "DONE" end
 	init()
 	m.randomseed( os.time() )
 
@@ -34,6 +37,7 @@ function love.load()
 end
 
 function love.update( dt )
+	splash:update(dt)
 	if game.konec == false then
 		game.fi = game.fi%(2*m.pi) + 2*m.pi/krg[game.poz].r*game.smer*(2/3)
 		if game.fi > 2*m.pi then
@@ -84,6 +88,7 @@ function love.update( dt )
 end
 
 function love.draw()
+	splash:draw()
 	if game.konec == false then
 		love.graphics.print( game.poz )
 		love.graphics.print( "Score: "..game.score, 0, 20 )
@@ -135,6 +140,7 @@ function love.draw()
 end
 
 function love.keypressed( key, scancode, isrepeat )
+	splash:skip()
 	if scancode == 'q' then
 		love.event.quit()
 	elseif scancode == "space" and game.konec == false then
