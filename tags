@@ -12,6 +12,7 @@ generate_circles	generators.lua	/^function generate_circles( t, numseg, starting
 generate_circles1	generators.lua	/^function generate_circles1( t, numKrog, exDist )$/
 generate_npcs	generators.lua	/^function generate_npcs( t, minR )$/
 generate_points	generators.lua	/^function generate_points(t, minR)$/
+genfive_col	generators.lua	/^function genfive_col( t, exDist)$/
 genfour	generators.lua	/^function genfour( t )$/
 genone	generators.lua	/^function genone( t )$/
 genone_col	generators.lua	/^function genone_col( t, exDist)$/

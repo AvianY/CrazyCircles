@@ -280,18 +280,24 @@ function genfive_col( t, exDist)
 			--local randkot = m.random(10, 30) / 100
 			--clusFi = clusFi + randkot
 		--end
-		local clus1X = t[#t].x + ( randR + preR )*m.cos(avgFi + clusFi)
-		local clus1Y = t[#t].y + ( randR + preR )*m.sin(avgFi + clusFi)
+		local clus1X = t[#t].x + ( randR + preR )*m.cos(avgFi - clusFi)
+		local clus1Y = t[#t].y + ( randR + preR )*m.sin(avgFi - clusFi)
 
-		local clus2X = t[#t].x + ( randR + preR )*m.cos(avgFi - clusFi)
-		local clus2Y = t[#t].y + ( randR + preR )*m.sin(avgFi - clusFi)
+		local clus2X = t[#t].x + ( randR + preR )*m.cos(avgFi + clusFi)
+		local clus2Y = t[#t].y + ( randR + preR )*m.sin(avgFi + clusFi)
 		
 		local a = 2 * randR
 		local b = randR + randR2
 		local c = 2 * randR2
 		
 		local v = m.sqrt(b^2 - ((a - c) / 2)^2)
-		local clusFi2 = m.acos(b / v)
+		local clusFi2
+		-- Razne tezavice z acos funkcijo in naso geometrijo :D
+		if a <= c then
+			clusFi2 = m.acos(v / b)
+		else
+			clusFi2 = -m.acos(v / b)
+		end
 		
 		local clus3X = clus1X + ( randR2 + randR )*m.cos(avgFi - clusFi2)
 		local clus3Y = clus1Y + ( randR2 + randR )*m.sin(avgFi - clusFi2)
@@ -303,14 +309,9 @@ function genfive_col( t, exDist)
 		local randR3 = m.random( krg.rmin, krg.rmax )
 
 		local height1, height3
-		--if randn == 1 then
+		
 		height1 = m.sqrt( (preR + randR)^2 - (randR)^2 )
-		height3 = m.sqrt( (randR2 + randR3)^2 - (randR3)^2 )
-		--else
-			--local extRandR = m.sin(clusFi)*(randR + preR)
-			--height1 = m.sqrt( (preR + randR)^2 - (extRandR)^2 )
-			--height2 = m.sqrt( (randR1 + randR)^2 - (extRandR)^2 )
-		--end
+		height3 = m.sqrt( (randR2 + randR3)^2 - (randR2)^2 )
 		
 		local zakkrg1X = t[#t].x + ( height1 + v + height3 )*m.cos(avgFi)
 		local zakkrg1Y = t[#t].y + ( height1 + v + height3 )*m.sin(avgFi)
