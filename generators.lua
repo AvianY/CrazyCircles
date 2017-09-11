@@ -274,21 +274,28 @@ function genfive_col( t, exDist)
 		local randR = m.random( krg.rmin, krg.rmax )
 		local randR2 = m.random( krg.rmin, krg.rmax )
 		local clusFi = m.asin( randR / ( randR + preR) )
-		--local randn = m.random(1,2)
-		--if randn == 2 then
-			-- kroga v clusterju se ne stikata
-			--local randkot = m.random(10, 30) / 100
-			--clusFi = clusFi + randkot
-		--end
+		local randn = m.random(1,2)
+		if randn == 2 then
+			--kroga v clusterju se ne stikata
+			local randkot = m.random(10, 30) / 100
+			clusFi = clusFi + randkot
+		end
 		local clus1X = t[#t].x + ( randR + preR )*m.cos(avgFi - clusFi)
 		local clus1Y = t[#t].y + ( randR + preR )*m.sin(avgFi - clusFi)
 
 		local clus2X = t[#t].x + ( randR + preR )*m.cos(avgFi + clusFi)
 		local clus2Y = t[#t].y + ( randR + preR )*m.sin(avgFi + clusFi)
 		
-		local a = 2 * randR
-		local b = randR + randR2
-		local c = 2 * randR2
+		local a, b, c
+		if randn == 1 then
+			a = 2 * randR
+			b = randR + randR2
+			c = 2 * randR2
+		else
+			a = diff( clus1X, clus1Y, clus2X, clus2Y )
+			b = randR + randR2
+			c = 2 * randR2
+		end
 		
 		local v = m.sqrt(b^2 - ((a - c) / 2)^2)
 		local clusFi2
@@ -299,6 +306,11 @@ function genfive_col( t, exDist)
 			clusFi2 = -m.acos(v / b)
 		end
 		
+		if randn == 2 then
+			local randkot = m.random(10, 30) / 100
+			clusFi2 = clusFi2 + randkot
+		end
+		
 		local clus3X = clus1X + ( randR2 + randR )*m.cos(avgFi - clusFi2)
 		local clus3Y = clus1Y + ( randR2 + randR )*m.sin(avgFi - clusFi2)
 
@@ -306,12 +318,29 @@ function genfive_col( t, exDist)
 		local clus4Y = clus2Y + ( randR2 + randR )*m.sin(avgFi + clusFi2)
 		
 		-- nakljucen R za zakljucitveni krog za gruco (cluster)
-		local randR3 = m.random( krg.rmin, krg.rmax )
-
+		local randR3 
+		if randn == 1 then
+			randR3 = m.random( krg.rmin, krg.rmax )
+		else
+			local krgdiff = diff( clus3X, clus3Y, clus4X, clus4Y ) - randR2*2
+			if krgdiff > krg.rmin then
+				randR3 = m.random( krgdiff + 5, krg.rmax )
+			else
+				randR3 = m.random( krg.rmin, krg.rmax )
+			end
+		end
+			
 		local height1, height3
 		
-		height1 = m.sqrt( (preR + randR)^2 - (randR)^2 )
-		height3 = m.sqrt( (randR2 + randR3)^2 - (randR2)^2 )
+		if randn == 2 then
+			height1 = m.sqrt( (preR + randR)^2 - (diff( clus1X, clus1Y, clus2X, clus2Y ) / 2)^2 )
+			height3 = m.sqrt( (randR2 + randR3)^2 - (diff( clus3X, clus3Y, clus4X, clus4Y ) / 2)^2 )
+			c = diff( clus3X, clus3Y, clus4X, clus4Y )
+			v = m.sqrt(b^2 - ((a - c) / 2)^2)
+		else
+			height1 = m.sqrt( (preR + randR)^2 - (randR)^2 )
+			height3 = m.sqrt( (randR2 + randR3)^2 - (randR2)^2 )
+		end
 		
 		local zakkrg1X = t[#t].x + ( height1 + v + height3 )*m.cos(avgFi)
 		local zakkrg1Y = t[#t].y + ( height1 + v + height3 )*m.sin(avgFi)
