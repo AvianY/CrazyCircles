@@ -30,7 +30,7 @@ function love.update( dt )
 		love.audio.play(zmaga)
 
 	elseif game.inside == -1 and game.konec == false then
-		 -- Check if close enough to neigh in general
+		-- Check if close enough to neigh in general
 		for k,neigh in ipairs(krg[game.poz].ngs) do
 			if diffFig( krg, neigh, x, y ) < krg[neigh].r then
 				game.konec = true
@@ -46,7 +46,7 @@ function love.update( dt )
 			end
 		end
 	end
-	
+
 	if game.konec == false then
 		if #krg[game.poz].pts > 0 then
 			for nj=1,#krg[game.poz].pts do
@@ -124,16 +124,16 @@ function love.keypressed( key, scancode, isrepeat )
 	elseif scancode == "space" and game.konec == false then
 		love.audio.stop(preskok)
 		love.audio.play(preskok)
-		 -- Check if close enough to neigh upon jumping
+		-- Check if close enough to neigh upon jumping
 		local lock = false
 		for _,neigh in ipairs(krg[game.poz].ngs) do
-			if diffFig( krg, neigh, x, y ) < krg[neigh].r + krg.Kbonus then -- m.min( krg[neigh].r, krg[game.poz].r) 
+			if diffFig( krg, neigh, x, y ) < krg[neigh].r + krg.Kbonus then -- m.min( krg[neigh].r, krg[game.poz].r)
 				game.fi = anglet( krg, game.poz, neigh ) + m.pi
 				game.last = game.poz
 				game.poz = neigh
 				game.pozChange = true
 				game.smer = -game.smer
-				lock = true 
+				lock = true
 				break
 			end
 		end
