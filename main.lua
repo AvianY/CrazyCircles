@@ -11,21 +11,20 @@ function love.load()
 end
 
 function love.update( dt )
-	if game.konec == false then
-		game.fi = game.fi%(2*m.pi) + 2*m.pi/krg[game.poz].r*game.smer*(2/3)
-		if game.fi > 2*m.pi then
-			game.fi = 0
-		end
-	end
+	-- update angle
+	if game.konec then return end
 
+	game.fi = game.fi%(2*m.pi) + dt*3 * game.smer
+
+	-- update the ball based on the angle
 	x = krg[game.poz].x + (krg[game.poz].r - krg.Rfig*game.inside)*m.cos(game.fi)
 	y = krg[game.poz].y + (krg[game.poz].r - krg.Rfig*game.inside)*m.sin(game.fi)
 
-	if game.poz == #krg and game.konec == false then
+	-- check endgame conditions
+	if game.poz == #krg then
 		game.konec = true
 		love.audio.play(zmaga)
-
-	elseif game.inside == -1 and game.konec == false then
+	elseif game.inside == -1 then
 		-- Check if close enough to neigh in general
 		for k,neigh in ipairs(krg[game.poz].ngs) do
 			if diffFig( krg, neigh, x, y ) < krg[neigh].r then
@@ -34,25 +33,24 @@ function love.update( dt )
 			end
 		end
 	end
-	if game.konec == false then
-		if #krg[game.poz].npcs > 0 then
-			if diff( x, y, krg[game.poz].npcs[1].x, krg[game.poz].npcs[1].y ) < krg.Rfig+krg.Rnpc then
-				game.konec = true
-				love.audio.play(nalet)
-			end
+
+	-- check if we are touching other balls
+	if #krg[game.poz].npcs > 0 then
+		if diff( x, y, krg[game.poz].npcs[1].x, krg[game.poz].npcs[1].y ) < krg.Rfig+krg.Rnpc then
+			game.konec = true
+			love.audio.play(nalet)
 		end
 	end
 
-	if game.konec == false then
-		if #krg[game.poz].pts > 0 then
-			for nj=1,#krg[game.poz].pts do
-				if krg[game.poz].pts[nj] ~= nil then
-					if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig + krg.Rpnt then
-						table.remove(krg[game.poz].pts, nj)
-						love.audio.stop(tocke)
-						love.audio.play(tocke)
-						game.score = game.score + 10
-					end
+
+	if #krg[game.poz].pts > 0 then
+		for nj=1,#krg[game.poz].pts do
+			if krg[game.poz].pts[nj] ~= nil then
+				if diff( x, y, krg[game.poz].pts[nj].x, krg[game.poz].pts[nj].y ) < krg.Rfig + krg.Rpnt then
+					table.remove(krg[game.poz].pts, nj)
+					love.audio.stop(tocke)
+					love.audio.play(tocke)
+					game.score = game.score + 10
 				end
 			end
 		end
